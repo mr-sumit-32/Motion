@@ -2,7 +2,6 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-
 // These keys will come from your Firebase Console project settings
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,

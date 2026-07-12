@@ -6,7 +6,7 @@ import NewTaskModal from './NewTaskModal';
 import EditTaskModal from './EditTaskModal';
 import ImportCsvModal from './ImportCsvModal';
 import type { Task } from '@/types/task';
-import { Paperclip } from 'lucide-react'; // Added for the attachment icon
+import { Paperclip } from 'lucide-react';
 
 export default function TaskTable() {
   const { tasks } = useStore();
@@ -32,19 +32,19 @@ export default function TaskTable() {
   // Helper function to color-code status badges
   const getStatusStyle = (status: string) => {
     const s = (status || '').toLowerCase();
-    if (s.includes('done') || s.includes('resolved')) return 'bg-[#e1f3ed] text-[#0f7b6c]';
-    if (s.includes('progress') || s.includes('suggested')) return 'bg-[#e3f2fd] text-[#1976d2]';
-    if (s.includes('blocked') || s.includes('awaiting')) return 'bg-[#ffebee] text-[#c62828]';
-    if (s.includes('partially')) return 'bg-[#fff3e0] text-[#e65100]';
-    return 'bg-[#efefed] text-[#787774]';
+    if (s.includes('done') || s.includes('resolved')) return 'bg-emerald-100 text-emerald-800 border border-emerald-200';
+    if (s.includes('progress') || s.includes('suggested')) return 'bg-blue-100 text-blue-800 border border-blue-200';
+    if (s.includes('blocked') || s.includes('awaiting')) return 'bg-rose-100 text-rose-800 border border-rose-200';
+    if (s.includes('partially')) return 'bg-orange-100 text-orange-800 border border-orange-200';
+    return 'bg-slate-100 text-slate-700 border border-slate-200';
   };
 
   // Helper function to color-code priority badges
   const getPriorityStyle = (priority: string) => {
     const p = (priority || '').toLowerCase();
-    if (p === 'high') return 'bg-[#ffebee] text-[#e03e3e]';
-    if (p === 'medium') return 'bg-[#fff8e1] text-[#d9730d]';
-    return 'bg-[#f4f5f5] text-[#787774]';
+    if (p === 'high') return 'bg-red-100 text-red-800 border border-red-200';
+    if (p === 'medium') return 'bg-amber-100 text-amber-800 border border-amber-200';
+    return 'bg-slate-100 text-slate-600 border border-slate-200';
   };
 
   // 1. Identify the current route
@@ -52,23 +52,18 @@ export default function TaskTable() {
   const isMyTasksRoute = location.pathname === '/tasks';
   const isByStatusRoute = location.pathname === '/by-status';
 
-  // 2. Filter tasks by Route Rules, URL Department, and inline text filters
+  // 2. Filter tasks
   let filteredTasks = tasks.filter((t) => {
-    
-    // ISOLATE PRIVATE TASKS
     if (isPrivateSpace) {
       return t.isPrivate === true && (t.assignee || '').toLowerCase().includes(user?.email?.toLowerCase() || '');
     } else {
-      // If we are NOT in the private space, hide ALL private tasks
       if (t.isPrivate === true) return false;
     }
 
-    // Convert DB department string to URL format
     const urlDeptMatches = department 
       ? (t.department || '').toLowerCase().replace(/\s+/g, '-') === department 
       : true;
 
-    // Check if we are on a route that strictly requires the task to belong to the logged-in user
     const mustBeMine = isMyTasksRoute || isByStatusRoute;
     const isAssignedToMe = mustBeMine && user?.email 
       ? (t.assignee || '').toLowerCase().includes(user.email.toLowerCase())
@@ -86,7 +81,7 @@ export default function TaskTable() {
     );
   });
 
-  // 3. Sort the tasks if we are on the "By Status" view
+  // 3. Sort the tasks
   if (isByStatusRoute) {
     const statusOrder: Record<string, number> = {
       'Not started': 1,
@@ -109,7 +104,7 @@ export default function TaskTable() {
   return (
     <div className="flex flex-col h-full animate-in fade-in duration-500">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">
+        <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
           {location.pathname === '/private-tasks' ? 'My Private Tasks' : 
            location.pathname === '/by-status' ? 'My Tasks By Status' : 
            location.pathname === '/tasks' ? 'My Tasks' : 
@@ -117,27 +112,26 @@ export default function TaskTable() {
            'All Tasks'}
         </h1>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button 
             onClick={() => setIsCsvModalOpen(true)}
-            className="bg-secondary text-secondary-foreground border border-border px-4 py-2 rounded-md text-sm font-medium hover:bg-muted transition-colors"
+            className="bg-indigo-50 text-indigo-700 border border-indigo-200 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-100 hover:border-indigo-300 transition-all shadow-sm"
           >
             Import CSV
           </button>
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-opacity"
+            className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-5 py-2 rounded-lg text-sm font-semibold shadow-md hover:shadow-lg hover:opacity-95 transition-all"
           >
             New Task
           </button>
         </div>
       </div>
 
-      <div className="overflow-x-auto bg-background border border-border rounded-lg shadow-sm flex-1">
+      <div className="overflow-x-auto bg-white border border-slate-200 rounded-xl shadow-sm flex-1">
         <table className="w-full border-collapse text-left text-[13px] whitespace-nowrap">
-          <thead className="bg-muted/30 sticky top-0 z-10">
-            {/* Headers exactly as requested */}
-            <tr className="border-b border-border text-muted-foreground">
+          <thead className="bg-indigo-50/70 text-indigo-950 sticky top-0 z-10 backdrop-blur-sm">
+            <tr className="border-b border-indigo-100">
               <th className="p-3 font-semibold">Department</th>
               <th className="p-3 font-semibold">Task Name</th>
               <th className="p-3 font-semibold">Created By</th>
@@ -152,39 +146,38 @@ export default function TaskTable() {
               <th className="p-3 font-semibold text-center">Attachment</th>
             </tr>
             
-            {/* Inline Filters Row */}
-            <tr className="border-b border-border bg-background">
-              <th className="p-1.5 px-3">
-                <input type="text" placeholder="Filter..." value={filters.department} onChange={(e) => handleFilterChange('department', e.target.value)} className="w-full p-1.5 text-xs border border-input rounded bg-transparent focus:outline-none focus:ring-1 focus:ring-ring" />
+            <tr className="border-b border-indigo-100 bg-white/50">
+              <th className="p-2 px-3">
+                <input type="text" placeholder="Filter..." value={filters.department} onChange={(e) => handleFilterChange('department', e.target.value)} className="w-full p-1.5 text-xs border border-slate-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-shadow" />
               </th>
-              <th className="p-1.5 px-3">
-                <input type="text" placeholder="Filter..." value={filters.taskName} onChange={(e) => handleFilterChange('taskName', e.target.value)} className="w-full p-1.5 text-xs border border-input rounded bg-transparent focus:outline-none focus:ring-1 focus:ring-ring" />
+              <th className="p-2 px-3">
+                <input type="text" placeholder="Filter..." value={filters.taskName} onChange={(e) => handleFilterChange('taskName', e.target.value)} className="w-full p-1.5 text-xs border border-slate-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-shadow" />
               </th>
-              <th className="p-1.5 px-3">
-                <input type="text" placeholder="Filter..." value={filters.createdBy} onChange={(e) => handleFilterChange('createdBy', e.target.value)} className="w-full p-1.5 text-xs border border-input rounded bg-transparent focus:outline-none focus:ring-1 focus:ring-ring" />
+              <th className="p-2 px-3">
+                <input type="text" placeholder="Filter..." value={filters.createdBy} onChange={(e) => handleFilterChange('createdBy', e.target.value)} className="w-full p-1.5 text-xs border border-slate-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-shadow" />
               </th>
-              <th className="p-1.5 px-3">
-                <input type="text" placeholder="Filter..." value={filters.assignee} onChange={(e) => handleFilterChange('assignee', e.target.value)} className="w-full p-1.5 text-xs border border-input rounded bg-transparent focus:outline-none focus:ring-1 focus:ring-ring" />
+              <th className="p-2 px-3">
+                <input type="text" placeholder="Filter..." value={filters.assignee} onChange={(e) => handleFilterChange('assignee', e.target.value)} className="w-full p-1.5 text-xs border border-slate-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-shadow" />
               </th>
-              <th className="p-1.5 px-3">
-                <input type="text" placeholder="Filter..." value={filters.priority} onChange={(e) => handleFilterChange('priority', e.target.value)} className="w-full p-1.5 text-xs border border-input rounded bg-transparent focus:outline-none focus:ring-1 focus:ring-ring" />
+              <th className="p-2 px-3">
+                <input type="text" placeholder="Filter..." value={filters.priority} onChange={(e) => handleFilterChange('priority', e.target.value)} className="w-full p-1.5 text-xs border border-slate-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-shadow" />
               </th>
-              <th className="p-1.5 px-3"></th> {/* Start Date (No text filter) */}
-              <th className="p-1.5 px-3"></th> {/* Due Date (No text filter) */}
-              <th className="p-1.5 px-3">
-                <input type="text" placeholder="Filter..." value={filters.status} onChange={(e) => handleFilterChange('status', e.target.value)} className="w-full p-1.5 text-xs border border-input rounded bg-transparent focus:outline-none focus:ring-1 focus:ring-ring" />
+              <th className="p-2 px-3"></th>
+              <th className="p-2 px-3"></th>
+              <th className="p-2 px-3">
+                <input type="text" placeholder="Filter..." value={filters.status} onChange={(e) => handleFilterChange('status', e.target.value)} className="w-full p-1.5 text-xs border border-slate-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-shadow" />
               </th>
-              <th className="p-1.5 px-3"></th> {/* Remark */}
-              <th className="p-1.5 px-3"></th> {/* Last Edited By */}
-              <th className="p-1.5 px-3"></th> {/* Last Edited Time */}
-              <th className="p-1.5 px-3"></th> {/* Attachment */}
+              <th className="p-2 px-3"></th>
+              <th className="p-2 px-3"></th>
+              <th className="p-2 px-3"></th>
+              <th className="p-2 px-3"></th>
             </tr>
           </thead>
           <tbody>
             {filteredTasks.length === 0 ? (
               <tr>
-                <td colSpan={12} className="p-8 text-center text-muted-foreground italic">
-                  No tasks found.
+                <td colSpan={12} className="p-12 text-center text-slate-400 italic">
+                  No tasks match your filters.
                 </td>
               </tr>
             ) : (
@@ -192,81 +185,58 @@ export default function TaskTable() {
                 <tr 
                   key={t.id} 
                   onClick={() => setSelectedTask(t)}
-                  className="border-b border-border hover:bg-muted/50 cursor-pointer transition-colors"
+                  className="border-b border-slate-100 hover:bg-indigo-50/40 cursor-pointer transition-colors"
                 >
-                  {/* 1. Department */}
                   <td className="p-3">
-                    <span className="bg-muted px-2 py-0.5 rounded text-[11px] font-medium text-muted-foreground">
+                    <span className="bg-slate-100 px-2 py-1 rounded-md text-[11px] font-semibold text-slate-600 border border-slate-200">
                       {t.department}
                     </span>
                   </td>
-                  
-                  {/* 2. Task Name */}
-                  <td className="p-3 font-medium max-w-[200px] truncate" title={t.taskName}>
+                  <td className="p-3 font-semibold text-slate-800 max-w-[200px] truncate" title={t.taskName}>
                     {t.taskName}
                   </td>
-
-                  {/* 3. Created By */}
-                  <td className="p-3 text-muted-foreground max-w-[150px] truncate" title={t.createdBy}>
+                  <td className="p-3 text-slate-500 max-w-[150px] truncate" title={t.createdBy}>
                     {t.createdBy ? t.createdBy.split('@')[0] : '-'}
                   </td>
-                  
-                  {/* 4. Assignee */}
-                  <td className="p-3 text-muted-foreground max-w-[150px] truncate" title={t.assignee}>
-                    👤 {(t.assignee || '').split(',')[0] || 'Unassigned'}
+                  <td className="p-3 text-slate-600 max-w-[150px] truncate font-medium" title={t.assignee}>
+                    <span className="text-indigo-400 mr-1">👤</span>{(t.assignee || '').split(',')[0] || 'Unassigned'}
                   </td>
-
-                  {/* 5. Priority */}
                   <td className="p-3">
-                    <span className={`px-2 py-0.5 rounded text-[11px] font-medium ${getPriorityStyle(t.priority)}`}>
+                    <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide ${getPriorityStyle(t.priority)}`}>
                       {t.priority}
                     </span>
                   </td>
-                  
-                  {/* 6. Start Date */}
-                  <td className="p-3 text-muted-foreground">
+                  <td className="p-3 text-slate-500 font-medium">
                     {t.startDate ? new Date(t.startDate).toLocaleDateString() : '-'}
                   </td>
-
-                  {/* 7. Due Date */}
-                  <td className="p-3 text-muted-foreground">
+                  <td className="p-3 text-slate-500 font-medium">
                     {t.dueDate ? new Date(t.dueDate).toLocaleDateString() : '-'}
                   </td>
-
-                  {/* 8. Status */}
                   <td className="p-3">
-                    <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${getStatusStyle(t.status)}`}>
+                    <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide ${getStatusStyle(t.status)}`}>
                       {t.status}
                     </span>
                   </td>
-
-                  {/* 9. Remark */}
-                  <td className="p-3 text-muted-foreground max-w-[200px] truncate" title={t.remark}>
+                  <td className="p-3 text-slate-500 max-w-[200px] truncate" title={t.remark}>
                     {t.remark || '-'}
                   </td>
-
-                  {/* 10. Last Edited By */}
-                  <td className="p-3 text-muted-foreground max-w-[150px] truncate" title={t.lastEditedBy}>
+                  <td className="p-3 text-slate-500 max-w-[150px] truncate" title={t.lastEditedBy}>
                     {t.lastEditedBy ? t.lastEditedBy.split('@')[0] : '-'}
                   </td>
-
-                  {/* 11. Last Edited Time (Assuming Firebase standard updatedAt or falling back to creation time/dash) */}
-                  <td className="p-3 text-muted-foreground">
+                  <td className="p-3 text-slate-400 text-xs">
                     {t.updatedAt 
                       ? new Date(t.updatedAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) 
                       : '-'}
                   </td>
-
-                  {/* 12. Attachment */}
                   <td className="p-3 text-center">
                     {t.attachmentUrl ? (
-                      <div className="flex justify-center text-blue-500 hover:text-blue-700" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex justify-center text-indigo-500 hover:text-indigo-700 transition-colors" onClick={(e) => e.stopPropagation()}>
                         <a href={t.attachmentUrl} target="_blank" rel="noopener noreferrer" title="View Attachment">
-                          <Paperclip size={16} />
+                          <Paperclip size={18} />
                         </a>
                       </div>
                     ) : (
-                      <span className="text-muted-foreground/30">-</span>
+                      <span className="text-slate-300">-</span>
                     )}
                   </td>
                 </tr>
@@ -276,23 +246,9 @@ export default function TaskTable() {
         </table>
       </div>
       
-      {/* Creation Modal */}
-      <NewTaskModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-      />
-
-      {/* Edit Modal */}
-      <EditTaskModal 
-        task={selectedTask} 
-        onClose={() => setSelectedTask(null)} 
-      />
-
-      {/* Import CSV Modal */}
-      <ImportCsvModal 
-        isOpen={isCsvModalOpen} 
-        onClose={() => setIsCsvModalOpen(false)} 
-      />
+      <NewTaskModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <EditTaskModal task={selectedTask} onClose={() => setSelectedTask(null)} />
+      <ImportCsvModal isOpen={isCsvModalOpen} onClose={() => setIsCsvModalOpen(false)} />
     </div>
   );
 }
