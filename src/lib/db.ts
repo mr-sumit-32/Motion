@@ -8,7 +8,6 @@ import {
   deleteDoc, 
   onSnapshot, 
   query, 
-  where 
 } from 'firebase/firestore';
 import type { Workspace, Page } from '@/types/workspace';
 import type { Task } from '@/types/task';
@@ -18,7 +17,7 @@ import { limit } from 'firebase/firestore'; // Make sure to add 'limit' to your 
 // WORKSPACE MANAGEMENT
 // ==========================================
 
-export async function getUserWorkspace(userId: string): Promise<Workspace | null> {
+export async function getUserWorkspace(_userId: string): Promise<Workspace | null> {
   // Instead of looking for the user's personal workspace, 
   // we just grab the very first workspace in the entire database (The Company Workspace)
   const q = query(collection(db, 'workspaces'), limit(1));
@@ -260,3 +259,4 @@ export function subscribeToCompanyDocs(workspaceId: string, onUpdate: (docs: Com
     onUpdate(docs);
   });
 }
+export { db };

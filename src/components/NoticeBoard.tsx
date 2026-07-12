@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useStore } from '@/store/useStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { createNotice, subscribeToNotices } from '@/lib/db';
+import { sendNoticeNotification } from '@/lib/email'; // IMPORT EMAIL SYSTEM
 import type { Notice } from '@/types/company';
 import { Loader2, X, Megaphone, Send } from 'lucide-react';
 
@@ -37,7 +38,12 @@ export default function NoticeBoard() {
     
     setIsSubmitting(true);
     try {
+      // 1. Save announcement to database
       await createNotice(currentWorkspace.id, title, message, user.email);
+      
+      // 2. Trigger EmailJS broadcast alert
+      await sendNoticeNotification(title, message, user.email);
+      
       setTitle('');
       setMessage('');
       setIsModalOpen(false);

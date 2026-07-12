@@ -11,7 +11,8 @@ export default function DocumentEditor() {
   const { pageId } = useParams();
   const { pages, currentWorkspace } = useStore();
   const [isSaving, setIsSaving] = useState(false);
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Fixed: Replaced NodeJS.Timeout namespace with browser-compatible wrapper
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Find the current page from our global store
   const currentPage = pages.find((p) => p.id === pageId);
