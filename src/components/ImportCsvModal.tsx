@@ -31,24 +31,51 @@ export default function ImportCsvModal({ isOpen, onClose }: ImportCsvModalProps)
     reader.onload = async (event) => {
       try {
         const text = event.target?.result as string;
-        // Basic CSV Parser: Split by newlines, then by commas
-        const rows = text.split('\n').map(row => row.split(',').map(cell => cell.trim()));
         
-        // Assuming CSV format: TaskName, Department, Priority, Assignee, Status
-        // Skip header row (index 0)
+        // Clean up quotes and split by rows and commas
+        const rows = text.split('\n').map(row => row.split(',').map(cell => cell.trim().replace(/^"|"$/g, '')));
+        
+        if (rows.length < 2) {
+          setError('CSV must contain a header row and at least one data row.');
+          setIsUploading(false);
+          return;
+        }
+
+        // 1. SMART HEADER PARSING: Read the first row and convert to lowercase for easy matching
+        const headers = rows[0].map(h => h.toLowerCase());
+        
+        // 2. FIND COLUMN INDICES (Returns -1 if the column doesn't exist in this specific CSV)
+        const taskNameIdx = headers.findIndex(h => h.includes('task name') || h.includes('title'));
+        const deptIdx = headers.findIndex(h => h.includes('department'));
+        const moduleIdx = headers.findIndex(h => h === 'module' || h.includes('module task')); // Finds Bizom's Module column!
+        const priorityIdx = headers.findIndex(h => h.includes('priority'));
+        const assigneeIdx = headers.findIndex(h => h.includes('assignee'));
+        const statusIdx = headers.findIndex(h => h.includes('status'));
+
         let count = 0;
+        
+        // 3. LOOP THROUGH DATA ROWS
         for (let i = 1; i < rows.length; i++) {
           const row = rows[i];
-          if (row.length < 5) continue; // Skip empty or incomplete rows
+          if (!row.join('')) continue; // Skip completely empty rows
 
           if (currentWorkspace && user?.email) {
+            // 4. SAFELY EXTRACT DATA: If index is > -1, grab the data. Otherwise, use a default.
+            const taskName = taskNameIdx > -1 && row[taskNameIdx] ? row[taskNameIdx] : 'Untitled Task';
+            const department = deptIdx > -1 && row[deptIdx] ? row[deptIdx] : 'Team Workspace';
+            const moduleTask = moduleIdx > -1 && row[moduleIdx] ? row[moduleIdx] : ''; // Saves empty string if column is missing
+            const priority = priorityIdx > -1 && row[priorityIdx] ? (row[priorityIdx] as TaskPriority) : 'Medium';
+            const assignee = assigneeIdx > -1 && row[assigneeIdx] ? row[assigneeIdx] : '';
+            const status = statusIdx > -1 && row[statusIdx] ? (row[statusIdx] as TaskStatus) : 'Not started';
+
             await createTask(currentWorkspace.id, {
-              taskName: row[0] || 'Untitled Task',
-              department: row[1] || 'Team Workspace',
-              priority: (row[2] as TaskPriority) || 'Medium',
+              taskName,
+              department,
+              moduleTask, // New dynamic field mapped perfectly!
+              priority,
               createdBy: user.email,
-              assignee: row[3] || '',
-              status: (row[4] as TaskStatus) || 'Not started',
+              assignee,
+              status,
               startDate: null,
               dueDate: null,
               remark: 'Imported via CSV',
@@ -61,7 +88,7 @@ export default function ImportCsvModal({ isOpen, onClose }: ImportCsvModalProps)
         }
         setSuccessCount(count);
       } catch (err) {
-        setError('Failed to parse CSV. Ensure it has columns: TaskName, Department, Priority, Assignee, Status.');
+        setError('Failed to parse CSV. Please check the file format.');
       } finally {
         setIsUploading(false);
       }
@@ -86,7 +113,7 @@ export default function ImportCsvModal({ isOpen, onClose }: ImportCsvModalProps)
           <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center justify-center bg-muted/10">
             <UploadCloud size={40} className="text-muted-foreground mb-4" />
             <p className="text-sm font-medium mb-2">Upload your CSV file here</p>
-            <p className="text-xs text-muted-foreground mb-4">Format: Task Name, Department, Priority, Assignee, Status</p>
+            <p className="text-xs text-muted-foreground mb-4">Dynamically maps: Task Name, Department, Module, Priority, Assignee, Status</p>
             
             <label className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium cursor-pointer hover:opacity-90 transition-opacity">
               {isUploading ? <Loader2 size={16} className="animate-spin" /> : 'Select File'}

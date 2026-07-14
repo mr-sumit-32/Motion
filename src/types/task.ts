@@ -16,5 +16,6 @@ export interface Task {
   lastEditedTime: Date;
   attachmentUrl: string;
   isPrivate: boolean;
+  moduleTask?: string;
   updatedAt?: string | Date | null;
 }
