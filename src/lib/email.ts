@@ -22,10 +22,10 @@ export const sendTaskNotification = async (
         SERVICE_ID,
         TEMPLATE_ID,
         {
-          to_email: email,
-          task_name: taskName,
-          assigned_by: assignedBy,
-          priority: priority
+          email: email, // Changed from to_email to match {{email}}
+          title: `Task Assigned: ${taskName}`, // Changed from task_name to match {{title}}
+          author: assignedBy.split('@')[0], // Changed from assigned_by to match {{author}}
+          message: `Priority is set to ${priority}. Please check the workspace.` // Replaced priority to match {{message}}
         },
         PUBLIC_KEY
       );
@@ -35,6 +35,7 @@ export const sendTaskNotification = async (
     console.error("Failed to send email notification:", error);
   }
 };
+
 // Add this right below your existing sendTaskNotification function
 
 export const sendNoticeNotification = async (
@@ -47,7 +48,7 @@ export const sendNoticeNotification = async (
   const TEAM_EMAIL_ALIAS = "team-alias@yourcompany.com"; 
 
   const templateParams = {
-    to_email: TEAM_EMAIL_ALIAS,
+    email: TEAM_EMAIL_ALIAS, // Changed from to_email to match {{email}}
     title: title,
     message: message,
     author: author.split('@')[0], // Cleans up "sumit@company.com" to just "sumit"
