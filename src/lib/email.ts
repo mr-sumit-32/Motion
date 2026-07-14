@@ -46,7 +46,7 @@
     // Replace this with your actual team mailing list email.
     const TEAM_EMAIL_ALIAS = "team-alias@yourcompany.com"; 
 
-    const templateParams = {
+    const templateParams = {  
       to_email: TEAM_EMAIL_ALIAS,
       title: title,
       message: message,
