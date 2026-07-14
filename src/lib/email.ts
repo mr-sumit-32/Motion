@@ -3,7 +3,7 @@
   // Replace these with your actual EmailJS credentials
   const SERVICE_ID = 'service_kpdaoeo';
   const TEMPLATE_ID = 'template_kctxfcj';
-  const PUBLIC_KEY = 'jC1_xdxcDBDIGZviK';
+  const PUBLIC_KEY = '4n8AOCXjFtnAXziN1';
 
   export const sendTaskNotification = async (
     assigneeEmails: string, 
