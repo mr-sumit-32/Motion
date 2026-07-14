@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useStore } from '@/store/useStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { updateTask, deleteTask } from '@/lib/db';
-import { sendTaskNotification } from '@/lib/email'; // IMPORT EMAIL SYSTEM
-import { Loader2, X, Trash2, Save, Share } from 'lucide-react'; // ADD SHARE ICON
+import { sendTaskNotification } from '@/lib/email'; 
+import { Loader2, X, Trash2, Save, Share, Mail } from 'lucide-react'; 
 import type { Task, TaskPriority, TaskStatus } from '@/types/task';
 
 interface EditTaskModalProps {
@@ -29,9 +29,11 @@ export default function EditTaskModal({ task, onClose }: EditTaskModalProps) {
   const [priority, setPriority] = useState<TaskPriority>('Medium');
   const [assignee, setAssignee] = useState('');
   const [remark, setRemark] = useState('');
-  const [department, setDepartment] = useState(''); // NEW DEPARTMENT STATE
+  const [department, setDepartment] = useState(''); 
+  
+  // NEW: Toggle state for sending emails on edit
+  const [sendEmailNotification, setSendEmailNotification] = useState(false);
 
-  // Pre-fill form when a task is selected
   useEffect(() => {
     if (task) {
       setStatus(task.status);
@@ -39,10 +41,17 @@ export default function EditTaskModal({ task, onClose }: EditTaskModalProps) {
       setAssignee(task.assignee || '');
       setRemark(task.remark || '');
       setDepartment(task.department || 'Team Workspace');
+      // Reset toggle to false every time modal opens to prevent accidental spam
+      setSendEmailNotification(false); 
     }
   }, [task]);
 
   if (!task) return null;
+
+  // Helper to check if we should send an email (Must have assignee AND assignee is not current user)
+  const isEligibleForEmail = () => {
+    return assignee && assignee.toLowerCase() !== user?.email?.toLowerCase();
+  };
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,6 +67,12 @@ export default function EditTaskModal({ task, onClose }: EditTaskModalProps) {
         lastEditedBy: user.email,
         updatedAt: new Date().toISOString()
       }, user.email);
+
+      // NEW: Send email ONLY if the toggle is checked AND it's not assigned to yourself
+      if (sendEmailNotification && isEligibleForEmail()) {
+        sendTaskNotification(assignee, task.taskName, user.email, priority);
+      }
+
       onClose();
     } catch (err) {
       console.error("Failed to update task:", err);
@@ -66,7 +81,6 @@ export default function EditTaskModal({ task, onClose }: EditTaskModalProps) {
     }
   };
 
-  // NEW FUNCTION: Handles moving a private task to a team space and emailing them
   const handleShare = async () => {
     if (!currentWorkspace || !user || !user.email) return;
     setIsSubmitting(true);
@@ -76,14 +90,14 @@ export default function EditTaskModal({ task, onClose }: EditTaskModalProps) {
         priority,
         assignee,
         remark,
-        department,        // Assign it to the chosen department
-        isPrivate: false,  // Remove the private lock
+        department,        
+        isPrivate: false,  
         lastEditedBy: user.email,
         updatedAt: new Date().toISOString()
       }, user.email);
 
-      // Trigger emails to all assigned users
-      if (assignee) {
+      // UPDATED: Always notify on Share, but strictly block if assigned to yourself
+      if (isEligibleForEmail()) {
         sendTaskNotification(assignee, task.taskName, user.email, priority);
       }
       onClose();
@@ -126,7 +140,6 @@ export default function EditTaskModal({ task, onClose }: EditTaskModalProps) {
         <div className="p-6 overflow-y-auto custom-scrollbar">
           <form id="edit-task-form" onSubmit={handleUpdate} className="space-y-5">
             
-            {/* NEW: Share Configuration Box (Only shows for private tasks) */}
             {task.isPrivate && (
               <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-xl space-y-3 mb-2">
                 <div className="space-y-2">
@@ -164,6 +177,23 @@ export default function EditTaskModal({ task, onClose }: EditTaskModalProps) {
             <div className="space-y-2">
               <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Assignee</label>
               <input type="text" value={assignee} onChange={(e) => setAssignee(e.target.value)} className="w-full px-4 py-2.5 border border-slate-200 rounded-lg bg-slate-50 hover:bg-white focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-sm" />
+              
+              {/* NEW: Email Notification Toggle */}
+              {isEligibleForEmail() && (
+                <div className="flex items-center gap-2 pt-2 ml-1">
+                  <input 
+                    type="checkbox" 
+                    id="emailToggle" 
+                    checked={sendEmailNotification}
+                    onChange={(e) => setSendEmailNotification(e.target.checked)}
+                    className="w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
+                  />
+                  <label htmlFor="emailToggle" className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 cursor-pointer select-none">
+                    <Mail size={14} className="text-slate-400" />
+                    Notify assignee of these changes via email
+                  </label>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -184,7 +214,6 @@ export default function EditTaskModal({ task, onClose }: EditTaskModalProps) {
               Cancel
             </button>
 
-            {/* NEW: Dedicated Blue Share Button */}
             {task.isPrivate && (
               <button type="button" onClick={handleShare} disabled={isSubmitting} className="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-all shadow-md flex items-center gap-2">
                 {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <Share size={16} />}

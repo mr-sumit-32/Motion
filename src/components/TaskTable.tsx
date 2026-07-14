@@ -22,6 +22,7 @@ export default function TaskTable() {
   // State to hold the value of each inline filter
   const [filters, setFilters] = useState({
     department: '',
+    moduleTask: '', // NEW: Filter state for Phase/Module
     taskName: '',
     priority: '',
     assignee: '',
@@ -73,6 +74,7 @@ export default function TaskTable() {
       urlDeptMatches &&
       isAssignedToMe &&
       (t.department || '').toLowerCase().includes(filters.department.toLowerCase()) &&
+      (t.moduleTask || '').toLowerCase().includes(filters.moduleTask.toLowerCase()) && // NEW: Filter logic for Phase
       (t.taskName || '').toLowerCase().includes(filters.taskName.toLowerCase()) &&
       (t.priority || '').toLowerCase().includes(filters.priority.toLowerCase()) &&
       (t.assignee || '').toLowerCase().includes(filters.assignee.toLowerCase()) &&
@@ -133,6 +135,7 @@ export default function TaskTable() {
           <thead className="bg-indigo-50/70 text-indigo-950 sticky top-0 z-10 backdrop-blur-sm">
             <tr className="border-b border-indigo-100">
               <th className="p-3 font-semibold">Department</th>
+              <th className="p-3 font-semibold">Phase</th> {/* NEW: Phase Header */}
               <th className="p-3 font-semibold">Task Name</th>
               <th className="p-3 font-semibold">Created By</th>
               <th className="p-3 font-semibold">Assignee</th>
@@ -149,6 +152,9 @@ export default function TaskTable() {
             <tr className="border-b border-indigo-100 bg-white/50">
               <th className="p-2 px-3">
                 <input type="text" placeholder="Filter..." value={filters.department} onChange={(e) => handleFilterChange('department', e.target.value)} className="w-full p-1.5 text-xs border border-slate-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-shadow" />
+              </th>
+              <th className="p-2 px-3"> {/* NEW: Filter input for Phase */}
+                <input type="text" placeholder="Filter..." value={filters.moduleTask} onChange={(e) => handleFilterChange('moduleTask', e.target.value)} className="w-full p-1.5 text-xs border border-slate-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-shadow" />
               </th>
               <th className="p-2 px-3">
                 <input type="text" placeholder="Filter..." value={filters.taskName} onChange={(e) => handleFilterChange('taskName', e.target.value)} className="w-full p-1.5 text-xs border border-slate-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-shadow" />
@@ -176,7 +182,7 @@ export default function TaskTable() {
           <tbody>
             {filteredTasks.length === 0 ? (
               <tr>
-                <td colSpan={12} className="p-12 text-center text-slate-400 italic">
+                <td colSpan={13} className="p-12 text-center text-slate-400 italic"> {/* Updated colSpan to 13 */}
                   No tasks match your filters.
                 </td>
               </tr>
@@ -191,6 +197,15 @@ export default function TaskTable() {
                     <span className="bg-slate-100 px-2 py-1 rounded-md text-[11px] font-semibold text-slate-600 border border-slate-200">
                       {t.department}
                     </span>
+                  </td>
+                  <td className="p-3 text-slate-600 font-medium"> {/* NEW: Phase Data Display */}
+                    {t.moduleTask ? (
+                      <span className="bg-indigo-50 text-indigo-700 px-2 py-1 rounded-md text-[11px] font-semibold border border-indigo-100">
+                        {t.moduleTask}
+                      </span>
+                    ) : (
+                      '-'
+                    )}
                   </td>
                   <td className="p-3 font-semibold text-slate-800 max-w-[200px] truncate" title={t.taskName}>
                     {t.taskName}
