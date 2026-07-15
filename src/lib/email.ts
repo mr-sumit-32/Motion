@@ -1,3 +1,10 @@
+import emailjs from '@emailjs/browser';
+
+// Replace these with your actual EmailJS credentials
+const SERVICE_ID = 'service_kpdaoeo';
+const TEMPLATE_ID = 'ilh7vck'; // Updated to your working Auto-Reply template ID
+const PUBLIC_KEY = '4n8AOCXjFtnAXziN1';
+
 export const sendTaskNotification = async (
   assigneeEmails: string, 
   taskName: string, 
@@ -6,24 +13,26 @@ export const sendTaskNotification = async (
 ) => {
   if (!assigneeEmails) return;
 
+  // Split by comma in case there are multiple assignees, and clean up spaces
   const emails = assigneeEmails.split(',').map(e => e.trim()).filter(Boolean);
 
   try {
     for (const email of emails) {
-      await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email,
-          title: `New Task Assigned: ${taskName}`,
-          author: assignedBy.split('@')[0],
-          message: `Priority is set to <strong>${priority}</strong>. Please check the workspace for details.`
-        }),
-      });
+      await emailjs.send(
+        SERVICE_ID,
+        TEMPLATE_ID,
+        {
+          to_email: email,
+          task_name: taskName,
+          assigned_by: assignedBy,
+          priority: priority
+        },
+        PUBLIC_KEY
+      );
     }
-    console.log("Nodemailer notification(s) sent successfully!");
+    console.log("Notification email(s) sent successfully!");
   } catch (error) {
-    console.error("Failed to send Nodemailer notification:", error);
+    console.error("Failed to send email notification:", error);
   }
 };
 
@@ -32,20 +41,24 @@ export const sendNoticeNotification = async (
   message: string, 
   author: string
 ) => {
+  // To protect your free quota, send company-wide notices to a single group email alias!
   // Replace this with your actual team mailing list email.
   const TEAM_EMAIL_ALIAS = "team-alias@yourcompany.com"; 
 
+  const templateParams = {  
+    to_email: TEAM_EMAIL_ALIAS,
+    title: title,
+    message: message,
+    author: author.split('@')[0], // Cleans up "sumit@company.com" to just "sumit"
+  };
+
   try {
-    await fetch('/api/send-email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: TEAM_EMAIL_ALIAS,
-        title: title,
-        author: author.split('@')[0],
-        message: message
-      }),
-    });
+    await emailjs.send(
+      import.meta.env.VITE_EMAILJS_SERVICE_ID,
+      import.meta.env.VITE_EMAILJS_NOTICE_TEMPLATE_ID, 
+      templateParams,
+      import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+    );
     console.log('Notice board email broadcasted successfully!');
   } catch (error) {
     console.error('Failed to send notice board email:', error);
