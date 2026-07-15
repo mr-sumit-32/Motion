@@ -2,7 +2,7 @@ import emailjs from '@emailjs/browser';
 
 // Replace these with your actual EmailJS credentials
 const SERVICE_ID = 'service_kpdaoeo';
-const TEMPLATE_ID = 'ilh7vck'; // Updated to your working Auto-Reply template ID
+const TEMPLATE_ID = 'template_kctxfcj'; // Updated to your working Auto-Reply template ID
 const PUBLIC_KEY = '4n8AOCXjFtnAXziN1';
 
 export const sendTaskNotification = async (
