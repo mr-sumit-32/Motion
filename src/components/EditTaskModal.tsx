@@ -3,6 +3,8 @@ import { useStore } from '@/store/useStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { updateTask, deleteTask } from '@/lib/db';
 import { sendTaskNotification } from '@/lib/email'; 
+import { db } from '@/lib/firebase';
+import { collection, getDocs } from 'firebase/firestore';
 import { Loader2, X, Trash2, Save, Share, Mail } from 'lucide-react'; 
 import type { Task, TaskPriority, TaskStatus } from '@/types/task';
 
@@ -23,6 +25,7 @@ export default function EditTaskModal({ task, onClose }: EditTaskModalProps) {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [availableUsers, setAvailableUsers] = useState<string[]>([]);
   
   // Form State
   const [status, setStatus] = useState<TaskStatus>('Not started');
@@ -31,8 +34,22 @@ export default function EditTaskModal({ task, onClose }: EditTaskModalProps) {
   const [remark, setRemark] = useState('');
   const [department, setDepartment] = useState(''); 
   
-  // NEW: Toggle state for sending emails on edit
+  // Toggle state for sending emails on edit
   const [sendEmailNotification, setSendEmailNotification] = useState(false);
+
+  // Fetch users for the autocomplete list
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, 'users')); 
+        const emails = snapshot.docs.map(doc => doc.data().email).filter(Boolean);
+        setAvailableUsers(emails);
+      } catch (err) {
+        console.error("Could not fetch users for edit modal autocomplete:", err);
+      }
+    };
+    if (task) fetchUsers();
+  }, [task]);
 
   useEffect(() => {
     if (task) {
@@ -41,14 +58,12 @@ export default function EditTaskModal({ task, onClose }: EditTaskModalProps) {
       setAssignee(task.assignee || '');
       setRemark(task.remark || '');
       setDepartment(task.department || 'Team Workspace');
-      // Reset toggle to false every time modal opens to prevent accidental spam
       setSendEmailNotification(false); 
     }
   }, [task]);
 
   if (!task) return null;
 
-  // Helper to check if we should send an email (Must have assignee AND assignee is not current user)
   const isEligibleForEmail = () => {
     return assignee && assignee.toLowerCase() !== user?.email?.toLowerCase();
   };
@@ -64,11 +79,11 @@ export default function EditTaskModal({ task, onClose }: EditTaskModalProps) {
         priority,
         assignee,
         remark,
+        department, // FIXED: Now securely passing department changes to the database update pipeline
         lastEditedBy: user.email,
         updatedAt: new Date().toISOString()
       }, user.email);
 
-      // NEW: Send email ONLY if the toggle is checked AND it's not assigned to yourself
       if (sendEmailNotification && isEligibleForEmail()) {
         sendTaskNotification(assignee, task.taskName, user.email, priority);
       }
@@ -96,7 +111,6 @@ export default function EditTaskModal({ task, onClose }: EditTaskModalProps) {
         updatedAt: new Date().toISOString()
       }, user.email);
 
-      // UPDATED: Always notify on Share, but strictly block if assigned to yourself
       if (isEligibleForEmail()) {
         sendTaskNotification(assignee, task.taskName, user.email, priority);
       }
@@ -141,27 +155,25 @@ export default function EditTaskModal({ task, onClose }: EditTaskModalProps) {
           <form id="edit-task-form" onSubmit={handleUpdate} className="space-y-5">
             
             {task.isPrivate && (
-              <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-xl space-y-3 mb-2">
-                <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-blue-700 uppercase tracking-wider">Share to Department</label>
-                  <select value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full px-4 py-2.5 border border-blue-200 rounded-lg bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm">
-                    {DEPARTMENTS.map(dept => (
-                      <option key={dept} value={dept}>{dept}</option>
-                    ))}
-                  </select>
-                </div>
-                <p className="text-xs text-blue-600 font-medium">Add multiple emails in the Assignee box below, separated by commas, to alert the team.</p>
+              <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-xl space-y-2 mb-2">
+                <label className="text-[11px] font-bold text-blue-700 uppercase tracking-wider">Status: Private Task</label>
+                <p className="text-xs text-blue-600 font-medium">Use the "Share" action button below to deploy this task globally to your team trackers.</p>
               </div>
             )}
 
+            {/* NEW: Permanent Department & Priority Fields layout */}
             <div className="grid grid-cols-2 gap-5">
               <div className="space-y-2">
-                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Status</label>
-                <select value={status} onChange={(e) => setStatus(e.target.value as TaskStatus)} className="w-full px-4 py-2.5 border border-slate-200 rounded-lg bg-slate-50 hover:bg-white focus:bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-sm">
-                  <option value="Not started">Not started</option>
-                  <option value="In progress">In progress</option>
-                  <option value="Blocked">Blocked</option>
-                  <option value="Done">Done</option>
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Department / Tracker</label>
+                <select 
+                  value={department} 
+                  onChange={(e) => setDepartment(e.target.value)} 
+                  disabled={task.isPrivate}
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-lg bg-slate-50 hover:bg-white focus:bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {DEPARTMENTS.map(dept => (
+                    <option key={dept} value={dept}>{dept}</option>
+                  ))}
                 </select>
               </div>
               <div className="space-y-2">
@@ -174,27 +186,51 @@ export default function EditTaskModal({ task, onClose }: EditTaskModalProps) {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Assignee</label>
-              <input type="text" value={assignee} onChange={(e) => setAssignee(e.target.value)} className="w-full px-4 py-2.5 border border-slate-200 rounded-lg bg-slate-50 hover:bg-white focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-sm" />
-              
-              {/* NEW: Email Notification Toggle */}
-              {isEligibleForEmail() && (
-                <div className="flex items-center gap-2 pt-2 ml-1">
-                  <input 
-                    type="checkbox" 
-                    id="emailToggle" 
-                    checked={sendEmailNotification}
-                    onChange={(e) => setSendEmailNotification(e.target.checked)}
-                    className="w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
-                  />
-                  <label htmlFor="emailToggle" className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 cursor-pointer select-none">
-                    <Mail size={14} className="text-slate-400" />
-                    Notify assignee of these changes via email
-                  </label>
-                </div>
-              )}
+            <div className="grid grid-cols-2 gap-5">
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Status</label>
+                <select value={status} onChange={(e) => setStatus(e.target.value as TaskStatus)} className="w-full px-4 py-2.5 border border-slate-200 rounded-lg bg-slate-50 hover:bg-white focus:bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-sm">
+                  <option value="Not started">Not started</option>
+                  <option value="In progress">In progress</option>
+                  <option value="Blocked">Blocked</option>
+                  <option value="Done">Done</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Assignees (Emails)</label>
+                <input 
+                  type="text" 
+                  list="edit-task-users"
+                  value={assignee} 
+                  onChange={(e) => setAssignee(e.target.value)} 
+                  placeholder="user1@company.com, user2@company.com"
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-lg bg-slate-50 hover:bg-white focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-sm" 
+                />
+                <datalist id="edit-task-users">
+                  {availableUsers.map((email, idx) => (
+                    <option key={idx} value={email} />
+                  ))}
+                </datalist>
+              </div>
             </div>
+
+            {/* Email Notification Toggle row alignment */}
+            {isEligibleForEmail() && (
+              <div className="flex items-center gap-2 pt-1 ml-1">
+                <input 
+                  type="checkbox" 
+                  id="emailToggle" 
+                  checked={sendEmailNotification}
+                  onChange={(e) => setSendEmailNotification(e.target.checked)}
+                  className="w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
+                />
+                <label htmlFor="emailToggle" className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 cursor-pointer select-none">
+                  <Mail size={14} className="text-slate-400" />
+                  Notify updated assignees of these changes via email
+                </label>
+              </div>
+            )}
 
             <div className="space-y-2">
               <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Remarks</label>
