@@ -3,9 +3,9 @@ import { useLocation } from 'react-router-dom';
 import { useStore } from '@/store/useStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { createTask } from '@/lib/db';
-import { db } from '@/lib/firebase'; // (Or whatever the correct path to your firebase.ts file is!)
+import { db } from '@/lib/firebase';
 import { collection, getDocs, } from 'firebase/firestore';
-import { Loader2, X, Link as LinkIcon } from 'lucide-react';
+import { Loader2, X, Link as LinkIcon, Mail } from 'lucide-react';
 import type { TaskPriority, TaskStatus } from '@/types/task';
 import { sendTaskNotification } from '@/lib/email';
 
@@ -36,6 +36,9 @@ export default function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
   const [dueDate, setDueDate] = useState('');
   const [remark, setRemark] = useState('');
   const [attachmentUrl, setAttachmentUrl] = useState('');
+  
+  // NEW: Toggle state for sending emails
+  const [sendEmailNotification, setSendEmailNotification] = useState(false);
 
   // Fetch users for the assignee dropdown suggestions
   useEffect(() => {
@@ -69,7 +72,8 @@ export default function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
       setRemark('');
       setAttachmentUrl('');
       setError('');
-      setIsSubmitting(false); // Fix for infinite loader
+      setIsSubmitting(false);
+      setSendEmailNotification(false); // Reset toggle to false to prevent accidental emails
     }
   }, [isOpen, isPrivateSpace, user]);
 
@@ -98,9 +102,10 @@ export default function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
         lastEditedBy: user.email,
         updatedAt: new Date().toISOString(),
       });
+      
       // TRIGGER THE EMAIL NOTIFICATION
-      // We only send if there is an assignee and it's not a private task
-      if (assignee && !isPrivateSpace) {
+      // UPDATED: Now strictly requires sendEmailNotification to be true
+      if (assignee && !isPrivateSpace && sendEmailNotification) {
         sendTaskNotification(assignee, taskName, user.email, priority);
       }
 
@@ -108,7 +113,7 @@ export default function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
     } catch (err: any) {
       setError(err.message || 'Failed to create task');
     } finally {
-      setIsSubmitting(false); // Fix for infinite loader
+      setIsSubmitting(false); 
     }
   };
 
@@ -127,7 +132,7 @@ export default function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
         </div>
 
         {/* Scrollable Form Body */}
-        <div className="p-6 overflow-y-auto flex-1 bg-gray-50/50">
+        <div className="p-6 overflow-y-auto flex-1 bg-gray-50/50 custom-scrollbar">
           {error && (
             <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm mb-4 border border-red-200">
               {error}
@@ -163,10 +168,11 @@ export default function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
                     <option value="Primary Sales">Primary Sales</option>
                     <option value="Secondary Sales">Secondary Sales</option>
                     <option value="Tertiary Sales">Tertiary Sales</option>
+                    <option value="Tertiary">Tertiary</option>
                     <option value="MIS Executive">MIS Executive</option>
                     <option value="Process Coordinator">Process Coordinator</option>
                     <option value="Warehouse">Warehouse</option>
-                    <option value="HR">HR</option>
+                    <option value="Human Resources">Human Resources</option>
                     <option value="Logistics">Logistics</option>
                   </select>
                 </div>
@@ -213,8 +219,26 @@ export default function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
                     <option key={idx} value={email} />
                   ))}
                 </datalist>
-                <p className="text-xs text-gray-400 mt-1">Separate multiple emails with commas</p>
+                <p className="text-xs text-gray-400 mt-1 mb-2">Separate multiple emails with commas</p>
+
+                {/* NEW: Email Notification Toggle */}
+                {!isPrivateSpace && assignee.trim().length > 0 && (
+                  <div className="flex items-center gap-2 pt-1 ml-1">
+                    <input 
+                      type="checkbox" 
+                      id="newEmailToggle" 
+                      checked={sendEmailNotification}
+                      onChange={(e) => setSendEmailNotification(e.target.checked)}
+                      className="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer"
+                    />
+                    <label htmlFor="newEmailToggle" className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 cursor-pointer select-none">
+                      <Mail size={14} className="text-gray-400" />
+                      Notify assignee via email
+                    </label>
+                  </div>
+                )}
               </div>
+              
               <div className="space-y-1.5">
                 <label className="text-sm font-semibold text-gray-700">Status</label>
                 <select 
