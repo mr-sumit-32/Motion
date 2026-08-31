@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useStore } from '@/store/useStore';
@@ -21,20 +22,33 @@ import {
   GitMerge,
   Package,
   UserCircle,
-  Truck
+  Truck,
+  ChevronDown,
+  ChevronRight,
+  X
 } from 'lucide-react';
 
-export default function Sidebar() {
+interface SidebarProps {
+  onClose?: () => void;
+  className?: string;
+}
+
+export default function Sidebar({ onClose, className }: SidebarProps) {
   const { pages, currentWorkspace, tasks } = useStore();
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // Added state to track collapsible section
+  const [isDepartmentsOpen, setIsDepartmentsOpen] = useState(true);
+
+  // Added "Tertiary" to the departments list
   const departments = [
     "Team Workspace", 
     "Bizom", 
     "Primary Sales", 
     "Secondary Sales", 
     "Tertiary Sales", 
+    "Tertiary", 
     "MIS Executive", 
     "Process Coordinator", 
     "Warehouse", 
@@ -52,7 +66,6 @@ export default function Sidebar() {
     }
   };
 
-  // Helper for standard vibrant link styling
   const navLinkClasses = ({ isActive }: { isActive: boolean }) => cn(
     "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200 group relative",
     isActive 
@@ -60,7 +73,6 @@ export default function Sidebar() {
       : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
   );
 
-  // Helper to assign the perfect icon to each department
   const getDepartmentIcon = (dept: string, isActive: boolean) => {
     const iconClass = isActive ? "shrink-0 text-indigo-600" : "shrink-0 text-slate-400 group-hover:text-indigo-500 transition-colors";
     const size = 18;
@@ -70,7 +82,8 @@ export default function Sidebar() {
       case "Bizom": return <Briefcase size={size} className={iconClass} />;
       case "Primary Sales": return <TrendingUp size={size} className={iconClass} />;
       case "Secondary Sales": return <ShoppingCart size={size} className={iconClass} />;
-      case "Tertiary Sales": return <Tags size={size} className={iconClass} />;
+      case "Tertiary Sales": 
+      case "Tertiary": return <Tags size={size} className={iconClass} />;
       case "MIS Executive": return <Database size={size} className={iconClass} />;
       case "Process Coordinator": return <GitMerge size={size} className={iconClass} />;
       case "Warehouse": return <Package size={size} className={iconClass} />;
@@ -80,25 +93,33 @@ export default function Sidebar() {
     }
   };
 
-  // Calculate how many active team tasks belong to the user
   const myPendingTasksCount = tasks.filter(t => 
     !t.isPrivate && 
     (t.assignee || '').toLowerCase().includes((user?.email || '').toLowerCase()) && 
     (t.status || '').toLowerCase() !== 'done'
   ).length;
 
-
   return (
-    <aside className="w-64 bg-slate-50/50 border-r border-slate-200 h-screen flex flex-col flex-shrink-0 select-none">
+    <aside className={cn("w-64 bg-slate-50/50 border-r border-slate-200 h-screen flex flex-col flex-shrink-0 select-none", className)}>
       
-      {/* Header */}
-      <div className="p-5 hover:bg-slate-100 cursor-pointer transition-colors border-b border-slate-200 mb-2">
-        <div className="flex items-center gap-3 font-semibold text-sm text-slate-800">
-          <div className="bg-gradient-to-br from-indigo-500 to-blue-600 text-white w-7 h-7 rounded-md flex items-center justify-center text-sm shadow-sm">
+      {/* Header with Mobile Close Button */}
+      <div className="flex items-center justify-between p-5 hover:bg-slate-100 cursor-pointer transition-colors border-b border-slate-200 mb-2 shrink-0">
+        <div className="flex items-center gap-3 font-semibold text-sm text-slate-800 truncate">
+          <div className="bg-gradient-to-br from-indigo-500 to-blue-600 text-white w-7 h-7 rounded-md flex items-center justify-center text-sm shadow-sm shrink-0">
             {user?.email?.charAt(0).toUpperCase() || 'M'}
           </div>
           <span className="truncate">{currentWorkspace?.name || 'Workspace'}</span>
         </div>
+        
+        {/* Mobile-only close button */}
+        {onClose && (
+          <button 
+            onClick={onClose}
+            className="lg:hidden p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors"
+          >
+            <X size={18} />
+          </button>
+        )}
       </div>
 
       {/* Scrollable Navigation */}
@@ -109,7 +130,7 @@ export default function Sidebar() {
           Company
         </div>
         <div className="px-3 space-y-1">
-          <NavLink to="/notice-board" className={navLinkClasses}>
+          <NavLink to="/notice-board" onClick={onClose} className={navLinkClasses}>
             {({ isActive }) => (
               <>
                 <Megaphone size={18} className={isActive ? "text-indigo-600" : "text-amber-500 opacity-90 group-hover:text-amber-600"} /> 
@@ -117,7 +138,7 @@ export default function Sidebar() {
               </>
             )}
           </NavLink>
-          <NavLink to="/document-hub" className={navLinkClasses}>
+          <NavLink to="/document-hub" onClick={onClose} className={navLinkClasses}>
             {({ isActive }) => (
               <>
                 <FolderOpen size={18} className={isActive ? "text-indigo-600" : "text-blue-500 opacity-90 group-hover:text-blue-600"} /> 
@@ -132,13 +153,12 @@ export default function Sidebar() {
           Views
         </div>
         <div className="px-3 space-y-1">
-          <NavLink to="/tasks" className={navLinkClasses}>
+          <NavLink to="/tasks" onClick={onClose} className={navLinkClasses}>
             {({ isActive }) => (
               <>
                 <CheckCircle2 size={18} className={isActive ? "text-indigo-600" : "text-emerald-500 opacity-90 group-hover:text-emerald-600"} /> 
                 <span className="flex-1">My Tasks</span>
                 
-                {/* UPDATED: Solid Red Badge Counter */}
                 {myPendingTasksCount > 0 && (
                   <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-extrabold shadow-sm bg-red-500 text-white">
                     {myPendingTasksCount}
@@ -147,7 +167,7 @@ export default function Sidebar() {
               </>
             )}
           </NavLink>
-          <NavLink to="/by-status" className={navLinkClasses}>
+          <NavLink to="/by-status" onClick={onClose} className={navLinkClasses}>
              {({ isActive }) => (
               <>
                 <BarChart3 size={18} className={isActive ? "text-indigo-600" : "text-purple-500 opacity-90 group-hover:text-purple-600"} /> 
@@ -163,7 +183,7 @@ export default function Sidebar() {
           <Plus size={14} className="text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity bg-indigo-50 rounded-full p-0.5" />
         </div>
         <div className="px-3 space-y-1">
-          <NavLink to="/private-tasks" className={({ isActive }) => cn(
+          <NavLink to="/private-tasks" onClick={onClose} className={({ isActive }) => cn(
             "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200 relative",
             isActive 
               ? "bg-slate-800 text-white font-semibold shadow-md" 
@@ -178,7 +198,7 @@ export default function Sidebar() {
           </NavLink>
           
           {pages.map((page) => (
-            <NavLink key={page.id} to={`/page/${page.id}`} className={navLinkClasses}>
+            <NavLink key={page.id} to={`/page/${page.id}`} onClick={onClose} className={navLinkClasses}>
               {({ isActive }) => (
                 <>
                   <FileText 
@@ -192,25 +212,36 @@ export default function Sidebar() {
           ))}
         </div>
 
-        {/* Teamspaces (Task Tables) */}
-        <div className="px-5 mt-8 mb-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-          Departments
-        </div>
-        <div className="px-3 space-y-1">
-          {departments.map((dept) => {
-            const urlSafeDept = dept.toLowerCase().replace(/\s+/g, '-');
-            return (
-              <NavLink key={dept} to={`/tracker/${urlSafeDept}`} className={navLinkClasses}>
-                {({ isActive }) => (
-                  <>
-                    {getDepartmentIcon(dept, isActive)}
-                    <span className="truncate flex-1">{dept}</span>
-                  </>
-                )}
-              </NavLink>
-            );
-          })}
-        </div>
+        {/* Collapsible Departments Section */}
+        <button 
+          onClick={() => setIsDepartmentsOpen(!isDepartmentsOpen)}
+          className="flex items-center justify-between w-full px-5 mt-8 mb-2 group hover:bg-slate-100/50 py-1 transition-colors"
+        >
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Departments</span>
+          {isDepartmentsOpen ? (
+            <ChevronDown size={14} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+          ) : (
+            <ChevronRight size={14} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+          )}
+        </button>
+        
+        {isDepartmentsOpen && (
+          <div className="px-3 space-y-1 animate-in slide-in-from-top-2 fade-in duration-200">
+            {departments.map((dept) => {
+              const urlSafeDept = dept.toLowerCase().replace(/\s+/g, '-');
+              return (
+                <NavLink key={dept} to={`/tracker/${urlSafeDept}`} onClick={onClose} className={navLinkClasses}>
+                  {({ isActive }) => (
+                    <>
+                      {getDepartmentIcon(dept, isActive)}
+                      <span className="truncate flex-1">{dept}</span>
+                    </>
+                  )}
+                </NavLink>
+              );
+            })}
+          </div>
+        )}
 
       </div>
     </aside>
