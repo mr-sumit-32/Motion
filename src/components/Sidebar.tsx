@@ -48,7 +48,6 @@ export default function Sidebar({ onClose, className }: SidebarProps) {
     "Primary Sales", 
     "Secondary Sales", 
     "Tertiary Sales", 
-    "Tertiary", 
     "MIS Executive", 
     "Process Coordinator", 
     "Warehouse", 
@@ -82,8 +81,7 @@ export default function Sidebar({ onClose, className }: SidebarProps) {
       case "Bizom": return <Briefcase size={size} className={iconClass} />;
       case "Primary Sales": return <TrendingUp size={size} className={iconClass} />;
       case "Secondary Sales": return <ShoppingCart size={size} className={iconClass} />;
-      case "Tertiary Sales": 
-      case "Tertiary": return <Tags size={size} className={iconClass} />;
+      case "Tertiary Sales": return <Tags size={size} className={iconClass} />;
       case "MIS Executive": return <Database size={size} className={iconClass} />;
       case "Process Coordinator": return <GitMerge size={size} className={iconClass} />;
       case "Warehouse": return <Package size={size} className={iconClass} />;
@@ -246,4 +244,4 @@ export default function Sidebar({ onClose, className }: SidebarProps) {
       </div>
     </aside>
   );
-}
+} 
