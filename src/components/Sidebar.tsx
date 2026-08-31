@@ -51,7 +51,7 @@ export default function Sidebar({ onClose, className }: SidebarProps) {
     "MIS Executive", 
     "Process Coordinator", 
     "Warehouse", 
-    "HR", 
+    "Human Resources", 
     "Logistics"
   ];
 
@@ -85,7 +85,7 @@ export default function Sidebar({ onClose, className }: SidebarProps) {
       case "MIS Executive": return <Database size={size} className={iconClass} />;
       case "Process Coordinator": return <GitMerge size={size} className={iconClass} />;
       case "Warehouse": return <Package size={size} className={iconClass} />;
-      case "HR": return <UserCircle size={size} className={iconClass} />;
+      case "Human Resources": return <UserCircle size={size} className={iconClass} />;
       case "Logistics": return <Truck size={size} className={iconClass} />;
       default: return <Building2 size={size} className={iconClass} />;
     }

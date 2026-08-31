@@ -72,10 +72,11 @@ export default function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
 
           {/* Dropdown Menu */}
           {isProfileOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-background border border-border rounded-md shadow-lg z-50 animate-in fade-in slide-in-from-top-2 duration-200 py-1">
+            <div className="absolute right-0 mt-2 w-64 bg-background border border-border rounded-md shadow-lg z-50 animate-in fade-in slide-in-from-top-2 duration-200 py-1">
               <div className="px-4 py-3 border-b border-border mb-1">
                 <p className="text-sm font-medium leading-none mb-1 text-foreground">Signed in as</p>
-                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                {/* Added title so hovering reveals the full email if it is truncated */}
+                <p className="text-xs text-muted-foreground truncate" title={user?.email || ''}>{user?.email}</p>
               </div>
               
               <button className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted flex items-center gap-2 transition-colors">
@@ -85,7 +86,7 @@ export default function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
               
               <button 
                 onClick={handleLogout}
-                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-2 transition-colors"
+                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-500/10 flex items-center gap-2 transition-colors font-medium"
               >
                 <LogOut size={16} />
                 Log out
