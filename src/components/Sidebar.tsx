@@ -24,16 +24,19 @@ import {
   UserCircle,
   Truck,
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
   X
 } from 'lucide-react';
 
 interface SidebarProps {
   onClose?: () => void;
+  onToggle?: () => void;
+  isOpen?: boolean;
   className?: string;
 }
 
-export default function Sidebar({ onClose, className }: SidebarProps) {
+export default function Sidebar({ onClose, onToggle, isOpen = true, className }: SidebarProps) {
   const { pages, currentWorkspace, tasks } = useStore();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -98,16 +101,37 @@ export default function Sidebar({ onClose, className }: SidebarProps) {
   ).length;
 
   return (
-    <aside className={cn("w-64 bg-slate-50/50 border-r border-slate-200 h-screen flex flex-col flex-shrink-0 select-none", className)}>
+    <aside className={cn(
+      "bg-slate-50/50 border-r border-slate-200 h-screen flex flex-col flex-shrink-0 select-none transition-all duration-300",
+      isOpen ? "w-64" : "w-20",
+      className
+    )}>
       
       {/* Header with Mobile Close Button */}
-      <div className="flex items-center justify-between p-5 hover:bg-slate-100 cursor-pointer transition-colors border-b border-slate-200 mb-2 shrink-0">
-        <div className="flex items-center gap-3 font-semibold text-sm text-slate-800 truncate">
+      <div className={cn(
+        "flex items-center border-b border-slate-200 mb-2 shrink-0 transition-all duration-300",
+        isOpen ? "justify-between p-5 hover:bg-slate-100 cursor-pointer" : "justify-center p-3"
+      )}>
+        <div className={cn("flex items-center font-semibold text-sm text-slate-800 truncate", isOpen ? "gap-3" : "justify-center")}>
           <div className="bg-gradient-to-br from-indigo-500 to-blue-600 text-white w-7 h-7 rounded-md flex items-center justify-center text-sm shadow-sm shrink-0">
             {user?.email?.charAt(0).toUpperCase() || 'M'}
           </div>
-          <span className="truncate">{currentWorkspace?.name || 'Workspace'}</span>
+          {isOpen && <span className="truncate">{currentWorkspace?.name || 'Workspace'}</span>}
         </div>
+
+        {onToggle && (
+          <button
+            onClick={onToggle}
+            className={cn(
+              "p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors",
+              !isOpen && "ml-0"
+            )}
+            aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+            title={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+          >
+            {isOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+          </button>
+        )}
         
         {/* Mobile-only close button */}
         {onClose && (
@@ -120,7 +144,7 @@ export default function Sidebar({ onClose, className }: SidebarProps) {
         )}
       </div>
 
-      {/* Scrollable Navigation */}
+      {isOpen ? (
       <div className="flex-1 overflow-y-auto pb-6 custom-scrollbar">
         
         {/* Company Section */}
@@ -242,6 +266,24 @@ export default function Sidebar({ onClose, className }: SidebarProps) {
         )}
 
       </div>
+      ) : (
+        <div className="flex-1 flex flex-col items-center py-4 gap-3">
+          <button
+            onClick={onToggle}
+            className="p-2 rounded-lg text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition-colors"
+            aria-label="Expand sidebar"
+            title="Expand sidebar"
+          >
+            <ChevronRight size={18} />
+          </button>
+          <div className="w-8 h-8 rounded-lg bg-indigo-500 text-white flex items-center justify-center text-xs font-semibold">
+            {user?.email?.charAt(0).toUpperCase() || 'M'}
+          </div>
+          <div className="w-8 h-8 rounded-lg bg-slate-200 text-slate-600 flex items-center justify-center">
+            <FileText size={16} />
+          </div>
+        </div>
+      )}
     </aside>
   );
 } 
