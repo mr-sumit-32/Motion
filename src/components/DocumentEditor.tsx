@@ -3,30 +3,43 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
-// Task list extension removed — package may not be installed in this environment
+// Re-integrated the checklist formatting packages
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
 import { useStore } from '@/store/useStore';
 import { updatePage, deletePage } from '@/lib/db'; 
 import { 
   Loader2, Trash2, Bold, Italic, Strikethrough, 
-  List, ListOrdered 
+  List, ListOrdered, CheckSquare 
 } from 'lucide-react';
 
 export default function DocumentEditor() {
   const { pageId } = useParams();
   const navigate = useNavigate();
   const { pages, currentWorkspace } = useStore();
+  
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [title, setTitle] = useState(''); // <-- New local state for instant typing
   
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Find the current page from our global store
   const currentPage = pages.find((p) => p.id === pageId);
 
+  // Sync local title state when navigating between different pages
+  useEffect(() => {
+    if (currentPage?.title) {
+      setTitle(currentPage.title);
+    }
+  }, [currentPage?.id]);
+
   // Initialize the Tiptap Editor with Checklist capabilities
   const editor = useEditor({
     extensions: [
       StarterKit,
+      TaskList,
+      TaskItem.configure({ nested: true }),
       Placeholder.configure({
         placeholder: "Start typing your notes or create a checklist...",
         emptyEditorClass: 'is-editor-empty',
@@ -39,7 +52,7 @@ export default function DocumentEditor() {
       },
     },
     onUpdate: ({ editor }) => {
-      debouncedSave(currentPage?.title || 'Untitled Note', editor.getHTML());
+      debouncedSave(title || 'Untitled Note', editor.getHTML());
     },
   });
 
@@ -51,7 +64,7 @@ export default function DocumentEditor() {
   }, [pageId, currentPage, editor]);
 
   // Debounced auto-save function
-  const debouncedSave = (title: string, content: string) => {
+  const debouncedSave = (newTitle: string, content: string) => {
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
@@ -61,7 +74,7 @@ export default function DocumentEditor() {
     saveTimeoutRef.current = setTimeout(async () => {
       if (!currentWorkspace || !pageId) return;
       try {
-        await updatePage(currentWorkspace.id, pageId, title, content);
+        await updatePage(currentWorkspace.id, pageId, newTitle, content);
       } catch (error) {
         console.error("Failed to save page:", error);
       } finally {
@@ -124,8 +137,11 @@ export default function DocumentEditor() {
       {/* Note Title */}
       <input
         type="text"
-        value={currentPage.title}
-        onChange={(e) => debouncedSave(e.target.value, editor?.getHTML() || '')}
+        value={title}
+        onChange={(e) => {
+          setTitle(e.target.value);
+          debouncedSave(e.target.value, editor?.getHTML() || '');
+        }}
         placeholder="Note Title"
         className="w-full text-3xl font-extrabold text-gray-900 bg-transparent border-none outline-none placeholder:text-gray-300 mb-6"
       />
@@ -162,7 +178,13 @@ export default function DocumentEditor() {
             icon={<ListOrdered size={18} />} 
           />
           
+          <div className="w-px h-5 bg-gray-300 mx-2" />
           
+          <ToolbarButton 
+            onClick={() => editor.chain().focus().toggleTaskList().run()} 
+            isActive={editor.isActive('taskList')} 
+            icon={<CheckSquare size={18} />} 
+          />
         </div>
       )}
 

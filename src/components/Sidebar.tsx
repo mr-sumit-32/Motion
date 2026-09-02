@@ -26,7 +26,8 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  X
+  X,
+  CheckSquare // <-- Added import
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -41,10 +42,9 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Added state to track collapsible section
   const [isDepartmentsOpen, setIsDepartmentsOpen] = useState(true);
+  const [isCreateMenuOpen, setIsCreateMenuOpen] = useState(false); // <-- New State for Dropdown
 
-  // Added "Tertiary" to the departments list
   const departments = [
     "Team Workspace", 
     "Bizom", 
@@ -58,11 +58,14 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
     "Logistics"
   ];
 
-  const handleCreatePage = async () => {
+  // UPDATED: Now accepts a type to set the default title
+  const handleCreatePage = async (type: 'Note' | 'Checklist') => {
     if (!currentWorkspace) return;
     try {
-      const newPage = await createPage(currentWorkspace.id, "Untitled");
+      const defaultTitle = type === 'Checklist' ? 'New Checklist' : 'New Note';
+      const newPage = await createPage(currentWorkspace.id, defaultTitle);
       navigate(`/page/${newPage.id}`);
+      setIsCreateMenuOpen(false); // Close menu after creating
     } catch (error) {
       console.error("Failed to create new page:", error);
     }
@@ -113,7 +116,6 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
       className
     )}>
       
-      {/* Header with Mobile Close Button */}
       <div className={cn(
         "flex items-center border-b border-slate-200 mb-2 shrink-0 transition-all duration-300",
         isOpen ? "justify-between p-5 hover:bg-slate-100 cursor-pointer" : "justify-center p-3"
@@ -132,14 +134,11 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
               "p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors",
               !isOpen && "ml-0"
             )}
-            aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
-            title={isOpen ? "Collapse sidebar" : "Expand sidebar"}
           >
             {isOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
           </button>
         )}
         
-        {/* Mobile-only close button */}
         {onClose && (
           <button 
             onClick={onClose}
@@ -153,7 +152,6 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
       {isOpen ? (
       <div className="flex-1 overflow-y-auto pb-6 custom-scrollbar">
         
-        {/* Company Section */}
         <div className="px-5 mt-4 mb-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
           Company
         </div>
@@ -176,7 +174,6 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
           </NavLink>
         </div>
 
-        {/* Global Views Section */}
         <div className="px-5 mt-8 mb-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
           Views
         </div>
@@ -205,11 +202,40 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
           </NavLink>
         </div>
 
-        {/* Private Pages & Tasks */}
-        <div className="flex items-center justify-between px-5 mt-8 mb-2 group cursor-pointer" onClick={handleCreatePage}>
+        {/* UPDATED: Private Space Dropdown Menu */}
+        <div className="flex items-center justify-between px-5 mt-8 mb-2 relative">
           <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Private Space</span>
-          <Plus size={14} className="text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity bg-indigo-50 rounded-full p-0.5" />
+          
+          <button 
+            onClick={() => setIsCreateMenuOpen(!isCreateMenuOpen)} 
+            className="text-indigo-500 hover:bg-indigo-100 transition-colors rounded-md p-1"
+          >
+            <Plus size={16} />
+          </button>
+
+          {isCreateMenuOpen && (
+            <>
+              {/* Invisible overlay to close menu when clicking outside */}
+              <div className="fixed inset-0 z-40" onClick={() => setIsCreateMenuOpen(false)} />
+              
+              <div className="absolute right-4 top-8 bg-white border border-slate-200 shadow-xl rounded-lg py-1 z-50 w-36 animate-in zoom-in-95 duration-100">
+                <button 
+                  onClick={() => handleCreatePage('Note')} 
+                  className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                >
+                  <FileText size={14} className="text-blue-500" /> Notes
+                </button>
+                <button 
+                  onClick={() => handleCreatePage('Checklist')} 
+                  className="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                >
+                  <CheckSquare size={14} className="text-emerald-500" /> CheckList
+                </button>
+              </div>
+            </>
+          )}
         </div>
+
         <div className="px-3 space-y-1">
           <NavLink to="/private-tasks" onClick={handleNavClick} className={({ isActive }) => cn(
             "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200 relative",
@@ -240,7 +266,6 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
           ))}
         </div>
 
-        {/* Collapsible Departments Section */}
         <button 
           onClick={() => setIsDepartmentsOpen(!isDepartmentsOpen)}
           className="flex items-center justify-between w-full px-5 mt-8 mb-2 group hover:bg-slate-100/50 py-1 transition-colors"
@@ -277,8 +302,6 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
           <button
             onClick={onToggle}
             className="p-2 rounded-lg text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition-colors"
-            aria-label="Expand sidebar"
-            title="Expand sidebar"
           >
             <ChevronRight size={18} />
           </button>
@@ -292,4 +315,4 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
       )}
     </aside>
   );
-} 
+}
