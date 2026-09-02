@@ -68,6 +68,12 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
     }
   };
 
+  const handleNavClick = () => {
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      onClose?.();
+    }
+  };
+
   const navLinkClasses = ({ isActive }: { isActive: boolean }) => cn(
     "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200 group relative",
     isActive 
@@ -152,7 +158,7 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
           Company
         </div>
         <div className="px-3 space-y-1">
-          <NavLink to="/notice-board" onClick={onClose} className={navLinkClasses}>
+          <NavLink to="/notice-board" onClick={handleNavClick} className={navLinkClasses}>
             {({ isActive }) => (
               <>
                 <Megaphone size={18} className={isActive ? "text-indigo-600" : "text-amber-500 opacity-90 group-hover:text-amber-600"} /> 
@@ -160,7 +166,7 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
               </>
             )}
           </NavLink>
-          <NavLink to="/document-hub" onClick={onClose} className={navLinkClasses}>
+          <NavLink to="/document-hub" onClick={handleNavClick} className={navLinkClasses}>
             {({ isActive }) => (
               <>
                 <FolderOpen size={18} className={isActive ? "text-indigo-600" : "text-blue-500 opacity-90 group-hover:text-blue-600"} /> 
@@ -175,7 +181,7 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
           Views
         </div>
         <div className="px-3 space-y-1">
-          <NavLink to="/tasks" onClick={onClose} className={navLinkClasses}>
+          <NavLink to="/tasks" onClick={handleNavClick} className={navLinkClasses}>
             {({ isActive }) => (
               <>
                 <CheckCircle2 size={18} className={isActive ? "text-indigo-600" : "text-emerald-500 opacity-90 group-hover:text-emerald-600"} /> 
@@ -189,7 +195,7 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
               </>
             )}
           </NavLink>
-          <NavLink to="/by-status" onClick={onClose} className={navLinkClasses}>
+          <NavLink to="/by-status" onClick={handleNavClick} className={navLinkClasses}>
              {({ isActive }) => (
               <>
                 <BarChart3 size={18} className={isActive ? "text-indigo-600" : "text-purple-500 opacity-90 group-hover:text-purple-600"} /> 
@@ -205,7 +211,7 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
           <Plus size={14} className="text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity bg-indigo-50 rounded-full p-0.5" />
         </div>
         <div className="px-3 space-y-1">
-          <NavLink to="/private-tasks" onClick={onClose} className={({ isActive }) => cn(
+          <NavLink to="/private-tasks" onClick={handleNavClick} className={({ isActive }) => cn(
             "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200 relative",
             isActive 
               ? "bg-slate-800 text-white font-semibold shadow-md" 
@@ -220,7 +226,7 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
           </NavLink>
           
           {pages.map((page) => (
-            <NavLink key={page.id} to={`/page/${page.id}`} onClick={onClose} className={navLinkClasses}>
+            <NavLink key={page.id} to={`/page/${page.id}`} onClick={handleNavClick} className={navLinkClasses}>
               {({ isActive }) => (
                 <>
                   <FileText 
@@ -252,7 +258,7 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
             {departments.map((dept) => {
               const urlSafeDept = dept.toLowerCase().replace(/\s+/g, '-');
               return (
-                <NavLink key={dept} to={`/tracker/${urlSafeDept}`} onClick={onClose} className={navLinkClasses}>
+                <NavLink key={dept} to={`/tracker/${urlSafeDept}`} onClick={handleNavClick} className={navLinkClasses}>
                   {({ isActive }) => (
                     <>
                       {getDepartmentIcon(dept, isActive)}
