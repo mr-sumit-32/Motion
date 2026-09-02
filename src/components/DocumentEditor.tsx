@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
-// Re-integrated the checklist formatting packages
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import { useStore } from '@/store/useStore';
@@ -20,21 +19,18 @@ export default function DocumentEditor() {
   
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [title, setTitle] = useState(''); // <-- New local state for instant typing
+  const [title, setTitle] = useState('');
   
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Find the current page from our global store
   const currentPage = pages.find((p) => p.id === pageId);
 
-  // Sync local title state when navigating between different pages
   useEffect(() => {
     if (currentPage?.title) {
       setTitle(currentPage.title);
     }
   }, [currentPage?.id]);
 
-  // Initialize the Tiptap Editor with Checklist capabilities
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -48,7 +44,8 @@ export default function DocumentEditor() {
     content: currentPage?.content || '',
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose-base dark:prose-invert focus:outline-none max-w-full min-h-[400px] mt-4',
+        // Reduced max-w-none so it uses full width if needed, and removed generic prose list margins
+        class: 'prose prose-sm sm:prose-base dark:prose-invert focus:outline-none max-w-none min-h-[400px] mt-4',
       },
     },
     onUpdate: ({ editor }) => {
@@ -56,14 +53,12 @@ export default function DocumentEditor() {
     },
   });
 
-  // Keep editor in sync if we click a different page in the sidebar
   useEffect(() => {
     if (editor && currentPage && editor.getHTML() !== currentPage.content) {
       editor.commands.setContent(currentPage.content || '');
     }
   }, [pageId, currentPage, editor]);
 
-  // Debounced auto-save function
   const debouncedSave = (newTitle: string, content: string) => {
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
@@ -83,7 +78,6 @@ export default function DocumentEditor() {
     }, 1000); 
   };
 
-  // Delete current note
   const handleDelete = async () => {
     if (!currentWorkspace || !pageId) return;
     if (!confirm("Are you sure you want to delete this note?")) return;
@@ -91,14 +85,13 @@ export default function DocumentEditor() {
     setIsDeleting(true);
     try {
       await deletePage(currentWorkspace.id, pageId);
-      navigate('/document-hub'); // Redirect after successful deletion
+      navigate('/document-hub'); 
     } catch (error) {
       console.error("Failed to delete note:", error);
       setIsDeleting(false);
     }
   };
 
-  // Clean up timeout on unmount
   useEffect(() => {
     return () => {
       if (saveTimeoutRef.current) {
@@ -187,6 +180,36 @@ export default function DocumentEditor() {
           />
         </div>
       )}
+
+      {/* Required CSS overrides for Tiptap Task Lists to override Tailwind Prose */}
+      <style>{`
+        ul[data-type="taskList"] {
+          list-style: none !important;
+          padding-left: 0 !important;
+        }
+        ul[data-type="taskList"] li {
+          display: flex !important;
+          align-items: flex-start;
+          margin-bottom: 0.5rem !important;
+        }
+        ul[data-type="taskList"] li > label {
+          margin-right: 0.5rem;
+          margin-top: 0.2rem;
+          user-select: none;
+        }
+        ul[data-type="taskList"] li > div {
+          flex: 1;
+        }
+        ul[data-type="taskList"] li p {
+          margin: 0 !important;
+        }
+        ul[data-type="taskList"] input[type="checkbox"] {
+          cursor: pointer;
+          width: 1rem;
+          height: 1rem;
+          accent-color: #4f46e5;
+        }
+      `}</style>
 
       {/* Rich Text Editor Body */}
       <div className="min-h-[500px] cursor-text" onClick={() => editor?.commands.focus()}>
