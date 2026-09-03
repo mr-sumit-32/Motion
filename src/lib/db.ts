@@ -193,36 +193,66 @@ export async function createDefaultWorkspace(userId: string): Promise<Workspace>
 // COMPANY: NOTICE BOARD
 // ==========================================
 
-export async function createNotice(workspaceId: string, title: string, message: string, author: string): Promise<void> {
+export async function createNotice(workspaceId: string, title: string, message: string, author: string, expiresAt: Date | null): Promise<void> {
   const noticeRef = doc(collection(db, `workspaces/${workspaceId}/notices`));
   await setDoc(noticeRef, {
     title,
     message,
     author,
-    createdAt: new Date()
+    createdAt: new Date(),
+    expiresAt
   });
+}
+
+export async function updateNotice(workspaceId: string, noticeId: string, title: string, message: string, expiresAt: Date | null) {
+  const noticeRef = doc(db, `workspaces/${workspaceId}/notices/${noticeId}`);
+  await updateDoc(noticeRef, { title, message, expiresAt });
+}
+
+export async function deleteNotice(workspaceId: string, noticeId: string) {
+  const noticeRef = doc(db, `workspaces/${workspaceId}/notices/${noticeId}`);
+  await deleteDoc(noticeRef);
 }
 
 export function subscribeToNotices(workspaceId: string, onUpdate: (notices: Notice[]) => void) {
   const noticesRef = collection(db, `workspaces/${workspaceId}/notices`);
-  // Query ordered by newest first
-  const q = query(noticesRef); 
-  
-  return onSnapshot(q, (snapshot) => {
-    const notices = snapshot.docs.map(doc => {
-      const data = doc.data();
+  const q = query(noticesRef);
+  let noticeRecords: Notice[] = [];
+
+  const publishNotices = () => {
+    const now = new Date();
+    const expiredNotices = noticeRecords.filter(notice => notice.expiresAt && notice.expiresAt <= now);
+    const activeNotices = noticeRecords.filter(notice => !notice.expiresAt || notice.expiresAt > now);
+
+    onUpdate(activeNotices);
+    expiredNotices.forEach(notice => {
+      deleteNotice(workspaceId, notice.id).catch(error => {
+        console.error('Failed to automatically delete expired notice:', error);
+      });
+    });
+  };
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    noticeRecords = snapshot.docs.map(noticeDoc => {
+      const data = noticeDoc.data();
       return {
-        id: doc.id,
+        id: noticeDoc.id,
         title: data.title,
         message: data.message,
         author: data.author,
         createdAt: data.createdAt?.toDate() || new Date(),
+        expiresAt: data.expiresAt?.toDate() || null,
       } as Notice;
     });
-    // Sort descending by date locally
-    notices.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-    onUpdate(notices);
+    noticeRecords.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    publishNotices();
   });
+
+  const expirationTimer = window.setInterval(publishNotices, 30000);
+  return () => {
+    unsubscribe();
+    window.clearInterval(expirationTimer);
+  };
 }
 // ==========================================
 // COMPANY: DOCUMENT HUB

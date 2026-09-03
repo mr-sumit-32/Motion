@@ -4,6 +4,7 @@ export interface Notice {
   message: string;
   author: string;
   createdAt: Date;
+  expiresAt?: Date | null;
 }
 
 export interface CompanyDoc {
