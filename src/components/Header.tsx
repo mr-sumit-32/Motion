@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Search, Bell, Menu, User, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -9,6 +10,7 @@ interface HeaderProps {
 
 export default function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   // Extract the first letter of the email for the avatar, default to 'U'
@@ -79,7 +81,13 @@ export default function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
                 <p className="text-xs text-slate-500 truncate" title={user?.email || ''}>{user?.email}</p>
               </div>
               
-              <button className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors">
+              <button
+                onClick={() => {
+                  setIsProfileOpen(false);
+                  navigate('/profile');
+                }}
+                className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors"
+              >
                 <User size={16} className="text-slate-400" />
                 Profile Settings
               </button>

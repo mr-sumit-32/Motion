@@ -9,6 +9,7 @@ import DocumentEditor from './components/DocumentEditor';
 import NoticeBoard from './components/NoticeBoard';
 import DocumentHub from './components/DocumentHub';
 import HomeDashboard from './components/HomeDashboard';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
               <Route path="tracker/:department" element={<TaskTable />} />
               <Route path="notice-board" element={<NoticeBoard />} />
               <Route path="document-hub" element={<DocumentHub />} />
+              <Route path="profile" element={<Profile />} />
               
               <Route path="page/:pageId" element={<DocumentEditor />} />
               <Route path="*" element={<PagePlaceholder title="404 Not Found" />} />
