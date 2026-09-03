@@ -52,19 +52,19 @@ export default function DocumentHub() {
 
   return (
     <div className="flex flex-col h-full animate-in fade-in duration-500">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
           <div className="p-3 bg-gradient-to-br from-indigo-500 to-blue-600 text-white rounded-xl shadow-sm">
             <FolderOpen size={24} />
           </div>
-          <div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Document Hub</h1>
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">Document Hub</h1>
             <p className="text-sm font-medium text-slate-500 mt-0.5">Centralized repository for important company links and assets.</p>
           </div>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-md hover:shadow-lg hover:opacity-95 transition-all"
+          className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-md hover:shadow-lg hover:opacity-95 transition-all"
         >
           Add Document
         </button>
@@ -82,7 +82,7 @@ export default function DocumentHub() {
             <p className="text-sm text-slate-500 mt-1">Start by adding a link to your company resources.</p>
           </div>
         ) : (
-          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-x-auto">
             <table className="w-full border-collapse text-left text-[13px] whitespace-nowrap">
               <thead className="bg-indigo-50/70 text-indigo-950">
                 <tr className="border-b border-indigo-100">

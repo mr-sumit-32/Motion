@@ -152,7 +152,7 @@ export default function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {!isPrivateSpace ? (
                 <div className="space-y-1.5">
                   <label className="text-sm font-semibold text-gray-700">Department / Tracker</label>
@@ -201,7 +201,7 @@ export default function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div className="space-y-1.5">
                 <label className="text-sm font-semibold text-gray-700">Assignee (Email)</label>
                 <input 
@@ -254,7 +254,7 @@ export default function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div className="space-y-1.5">
                 <label className="text-sm font-semibold text-gray-700">Start Date</label>
                 <input 

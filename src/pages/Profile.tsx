@@ -91,7 +91,7 @@ export default function Profile() {
         </div>
 
         {/* Form */}
-        <div className="p-8">
+        <div className="p-5 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             
             {/* Auto-Captured Email (Read-Only) */}
@@ -110,7 +110,7 @@ export default function Profile() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">First Name</label>
                 <input 

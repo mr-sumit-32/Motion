@@ -107,19 +107,19 @@ export default function NoticeBoard() {
 
   return (
     <div className="flex flex-col h-full animate-in fade-in duration-500">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
           <div className="p-3 bg-gradient-to-br from-amber-400 to-orange-500 text-white rounded-xl shadow-sm">
             <Megaphone size={24} />
           </div>
-          <div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">Notice Board</h1>
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">Notice Board</h1>
             <p className="text-sm font-medium text-slate-500 mt-0.5">Company-wide announcements and updates.</p>
           </div>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-md hover:shadow-lg hover:opacity-95 transition-all"
+          className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-md hover:shadow-lg hover:opacity-95 transition-all"
         >
           Post Notice
         </button>
@@ -139,7 +139,7 @@ export default function NoticeBoard() {
         ) : (
           <div className="grid gap-5 max-w-4xl">
             {notices.map((notice) => (
-              <div key={notice.id} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all">
+              <div key={notice.id} className="bg-white border border-slate-200 rounded-xl p-4 sm:p-6 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all">
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="text-lg font-bold text-slate-900">{notice.title}</h3>
                   <div className="flex items-center gap-2">

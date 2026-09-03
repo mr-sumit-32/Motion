@@ -111,8 +111,8 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
 
   return (
     <aside className={cn(
-      "bg-slate-50/50 border-r border-slate-200 h-screen flex flex-col flex-shrink-0 select-none transition-all duration-300",
-      isOpen ? "w-64" : "w-20",
+      "fixed inset-y-0 left-0 z-50 w-64 bg-slate-50/50 border-r border-slate-200 h-screen flex flex-col flex-shrink-0 select-none transition-transform transition-[width] duration-300 lg:relative lg:translate-x-0",
+      isOpen ? "translate-x-0 lg:w-64" : "-translate-x-full lg:w-20",
       className
     )}>
       

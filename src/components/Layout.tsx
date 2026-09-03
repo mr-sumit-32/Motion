@@ -64,6 +64,14 @@ export default function Layout() {
 
   return (
     <div className="flex h-screen w-full bg-background text-foreground font-sans overflow-hidden">
+      {isSidebarOpen && (
+        <button
+          type="button"
+          aria-label="Close navigation"
+          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-slate-900/40 lg:hidden"
+        />
+      )}
       <Sidebar
         isOpen={isSidebarOpen}
         onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -73,7 +81,7 @@ export default function Layout() {
       <div className="flex-1 flex flex-col min-w-0 transition-all duration-300">
         <Header toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} isSidebarOpen={isSidebarOpen} />
         
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6">
           <div className="max-w-5xl mx-auto w-full">
             <Outlet />
           </div>

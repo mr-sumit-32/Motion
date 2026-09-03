@@ -57,7 +57,7 @@ export default function HomeDashboard() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-6 animate-in fade-in duration-500">
+    <div className="max-w-5xl mx-auto py-5 sm:py-8 px-1 sm:px-6 animate-in fade-in duration-500">
       
       {/* Header Section */}
       <div className="mb-10">

@@ -109,10 +109,10 @@ export default function DocumentEditor() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-6 md:px-12 animate-in fade-in duration-500 relative bg-white min-h-screen border-x border-gray-100 shadow-sm">
+    <div className="max-w-4xl mx-auto py-5 sm:py-8 px-4 sm:px-6 md:px-12 animate-in fade-in duration-500 relative bg-white min-h-screen border-x border-gray-100 shadow-sm">
       
       {/* Top Action Bar */}
-      <div className="flex items-center justify-between mb-6 border-b border-gray-100 pb-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6 border-b border-gray-100 pb-4">
         <div className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">
           {isSaving ? 'Saving changes...' : 'All changes saved'}
         </div>
@@ -136,7 +136,7 @@ export default function DocumentEditor() {
           debouncedSave(e.target.value, editor?.getHTML() || '');
         }}
         placeholder="Note Title"
-        className="w-full text-3xl font-extrabold text-gray-900 bg-transparent border-none outline-none placeholder:text-gray-300 mb-6"
+        className="w-full text-2xl sm:text-3xl font-extrabold text-gray-900 bg-transparent border-none outline-none placeholder:text-gray-300 mb-6"
       />
 
       {/* Formatting Toolbar */}

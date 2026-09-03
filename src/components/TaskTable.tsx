@@ -106,8 +106,8 @@ export default function TaskTable() {
   };
 
   return (
-    <div className="flex flex-col h-full animate-in fade-in duration-500">
-      <div className="flex items-center justify-between mb-6">
+    <div className="flex flex-col h-full min-w-0 animate-in fade-in duration-500">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
         <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
           {location.pathname === '/private-tasks' ? 'My Private Tasks' : 
            location.pathname === '/by-status' ? 'My Tasks By Status' : 
@@ -116,23 +116,23 @@ export default function TaskTable() {
            'All Tasks'}
         </h1>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button 
             onClick={() => setIsCsvModalOpen(true)}
-            className="bg-indigo-50 text-indigo-700 border border-indigo-200 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-100 hover:border-indigo-300 transition-all shadow-sm"
+            className="flex-1 sm:flex-none bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-100 hover:border-indigo-300 transition-all shadow-sm"
           >
             Import CSV
           </button>
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-5 py-2 rounded-lg text-sm font-semibold shadow-md hover:shadow-lg hover:opacity-95 transition-all"
+            className="flex-1 sm:flex-none bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-4 sm:px-5 py-2 rounded-lg text-sm font-semibold shadow-md hover:shadow-lg hover:opacity-95 transition-all"
           >
             New Task
           </button>
         </div>
       </div>
 
-      <div className="overflow-x-auto bg-white border border-slate-200 rounded-xl shadow-sm flex-1">
+      <div className="overflow-x-auto bg-white border border-slate-200 rounded-xl shadow-sm flex-1 min-w-0">
         <table className="w-full border-collapse text-left text-[13px] whitespace-nowrap">
           <thead className="bg-indigo-50/70 text-indigo-950 sticky top-0 z-10 backdrop-blur-sm">
             <tr className="border-b border-indigo-100">
