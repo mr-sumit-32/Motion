@@ -158,7 +158,7 @@ export default function Profile() {
                 </div>
                 <input 
                   required
-                  type="tel" 
+                  type="tel"
                   inputMode="numeric"
                   placeholder="+91 xxxxx-xxxxx"
                   value={contactNo}

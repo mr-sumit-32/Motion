@@ -4,10 +4,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { createCompanyDoc, subscribeToCompanyDocs } from '@/lib/db';
 import type { CompanyDoc } from '@/types/company';
 import { Loader2, X, FolderOpen, ExternalLink, FileText } from 'lucide-react';
+import { useUserDirectory } from '@/hooks/useUserDirectory';
 
 export default function DocumentHub() {
   const { currentWorkspace } = useStore();
   const { user } = useAuth();
+  const { getDisplayName } = useUserDirectory();
   
   const [docs, setDocs] = useState<CompanyDoc[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -97,7 +99,7 @@ export default function DocumentHub() {
                       <FileText size={16} className="text-indigo-400" /> 
                       {doc.name}
                     </td>
-                    <td className="p-4 font-medium text-slate-600">{doc.author.split('@')[0]}</td>
+                    <td className="p-4 font-medium text-slate-600">{getDisplayName(doc.author)}</td>
                     <td className="p-4 font-medium text-slate-500">
                       {doc.createdAt.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
                     </td>

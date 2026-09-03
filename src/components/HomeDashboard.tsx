@@ -5,14 +5,16 @@ import { useAuth } from '@/contexts/AuthContext';
 import { subscribeToNotices } from '@/lib/db';
 import type { Notice } from '@/types/company';
 import { Megaphone, CheckCircle2, ArrowRight, Clock } from 'lucide-react';
+import { useUserDirectory } from '@/hooks/useUserDirectory';
 
 export default function HomeDashboard() {
   const { user } = useAuth();
   const { tasks, currentWorkspace } = useStore();
+  const { getDisplayName } = useUserDirectory();
   const [latestNotice, setLatestNotice] = useState<Notice | null>(null);
 
   // Extract a display name from the user's email
-  const displayName = user?.email?.split('@')[0] || 'Team Member';
+  const displayName = getDisplayName(user?.email) || 'Team Member';
   const capitalizedName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
 
   // Filter tasks to show only pending ones assigned to the logged-in user
@@ -133,7 +135,7 @@ export default function HomeDashboard() {
                     {latestNotice.message}
                   </p>
                   <div className="text-xs text-muted-foreground flex justify-between items-center mt-auto">
-                    <span>By {latestNotice.author.split('@')[0]}</span>
+                    <span>By {getDisplayName(latestNotice.author)}</span>
                     <Link to="/notice-board" className="text-blue-600 hover:underline font-medium">Read more</Link>
                   </div>
                 </div>

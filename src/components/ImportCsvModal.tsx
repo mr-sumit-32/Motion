@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { createTask } from '@/lib/db';
 import { X, Loader2, UploadCloud, CheckCircle2 } from 'lucide-react';
 import type { TaskPriority, TaskStatus } from '@/types/task';
+import { useUserDirectory } from '@/hooks/useUserDirectory';
 
 interface ImportCsvModalProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ type PreviewTask = {
 export default function ImportCsvModal({ isOpen, onClose }: ImportCsvModalProps) {
   const { currentWorkspace } = useStore();
   const { user } = useAuth();
+  const { getDisplayNames } = useUserDirectory();
   
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
@@ -194,7 +196,7 @@ export default function ImportCsvModal({ isOpen, onClose }: ImportCsvModalProps)
                             <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-bold">{task.department}</span>
                           </td>
                           <td className="px-4 py-2.5 text-slate-500">{task.moduleTask || '-'}</td>
-                          <td className="px-4 py-2.5 text-slate-500">{task.assignee || '-'}</td>
+                          <td className="px-4 py-2.5 text-slate-500">{getDisplayNames(task.assignee) || '-'}</td>
                         </tr>
                       ))}
                     </tbody>

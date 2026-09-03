@@ -7,6 +7,7 @@ import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { Loader2, X, Trash2, Save, Share, Mail } from 'lucide-react'; 
 import type { Task, TaskPriority, TaskStatus } from '@/types/task';
+import { useUserDirectory } from '@/hooks/useUserDirectory';
 
 interface EditTaskModalProps {
   task: Task | null;
@@ -22,6 +23,7 @@ const DEPARTMENTS = [
 export default function EditTaskModal({ task, onClose }: EditTaskModalProps) {
   const { currentWorkspace } = useStore();
   const { user } = useAuth();
+  const { getDisplayName } = useUserDirectory();
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -143,7 +145,7 @@ export default function EditTaskModal({ task, onClose }: EditTaskModalProps) {
           <div>
             <h2 className="text-xl font-extrabold text-slate-900">{task.taskName}</h2>
             <p className="text-xs font-medium text-slate-500 mt-1 flex items-center gap-1.5">
-              Created by <span className="text-slate-700 font-bold">{task.createdBy.split('@')[0]}</span> in <span className="bg-slate-200 px-1.5 py-0.5 rounded text-slate-700">{task.department}</span>
+              Created by <span className="text-slate-700 font-bold">{getDisplayName(task.createdBy)}</span> in <span className="bg-slate-200 px-1.5 py-0.5 rounded text-slate-700">{task.department}</span>
             </p>
           </div>
           <button onClick={onClose} className="p-1.5 hover:bg-slate-200 rounded-md text-slate-400 hover:text-slate-600 transition-colors">

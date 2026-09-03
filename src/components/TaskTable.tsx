@@ -7,12 +7,14 @@ import EditTaskModal from './EditTaskModal';
 import ImportCsvModal from './ImportCsvModal';
 import type { Task } from '@/types/task';
 import { Paperclip } from 'lucide-react';
+import { useUserDirectory } from '@/hooks/useUserDirectory';
 
 export default function TaskTable() {
   const { tasks } = useStore();
   const { department } = useParams();
   const location = useLocation();
   const { user } = useAuth();
+  const { getDisplayName, getDisplayNames } = useUserDirectory();
   
   // Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -211,10 +213,10 @@ export default function TaskTable() {
                     {t.taskName}
                   </td>
                   <td className="p-3 text-slate-500 max-w-[150px] truncate" title={t.createdBy}>
-                    {t.createdBy ? t.createdBy.split('@')[0] : '-'}
+                    {t.createdBy ? getDisplayName(t.createdBy) : '-'}
                   </td>
                   <td className="p-3 text-slate-600 max-w-[150px] truncate font-medium" title={t.assignee}>
-                    <span className="text-indigo-400 mr-1">👤</span>{(t.assignee || '').split(',')[0] || 'Unassigned'}
+                    <span className="text-indigo-400 mr-1">👤</span>{getDisplayNames(t.assignee) || 'Unassigned'}
                   </td>
                   <td className="p-3">
                     <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide ${getPriorityStyle(t.priority)}`}>
@@ -236,7 +238,7 @@ export default function TaskTable() {
                     {t.remark || '-'}
                   </td>
                   <td className="p-3 text-slate-500 max-w-[150px] truncate" title={t.lastEditedBy}>
-                    {t.lastEditedBy ? t.lastEditedBy.split('@')[0] : '-'}
+                    {t.lastEditedBy ? getDisplayName(t.lastEditedBy) : '-'}
                   </td>
                   <td className="p-3 text-slate-400 text-xs">
                     {t.updatedAt 

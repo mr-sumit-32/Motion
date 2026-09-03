@@ -5,6 +5,7 @@ import { createNotice, deleteNotice, subscribeToNotices, updateNotice } from '@/
 import { sendNoticeNotification } from '@/lib/email'; // IMPORT EMAIL SYSTEM
 import type { Notice } from '@/types/company';
 import { Loader2, X, Megaphone, Send, Trash2, Pencil } from 'lucide-react';
+import { useUserDirectory } from '@/hooks/useUserDirectory';
 
 function toDateTimeLocalValue(date: Date) {
   const pad = (value: number) => String(value).padStart(2, '0');
@@ -14,6 +15,7 @@ function toDateTimeLocalValue(date: Date) {
 export default function NoticeBoard() {
   const { currentWorkspace } = useStore();
   const { user } = useAuth();
+  const { getDisplayName } = useUserDirectory();
   
   const [notices, setNotices] = useState<Notice[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -170,10 +172,10 @@ export default function NoticeBoard() {
                 </p>
                 <div className="flex items-center gap-2.5 pt-4 border-t border-slate-100">
                   <div className="w-7 h-7 rounded-md bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center text-[11px] font-bold text-slate-600 shadow-sm">
-                    {notice.author.charAt(0).toUpperCase()}
+                    {getDisplayName(notice.author).charAt(0).toUpperCase()}
                   </div>
                   <span className="text-xs font-semibold text-slate-500">
-                    Posted by <span className="text-slate-700">{notice.author.split('@')[0]}</span>
+                    Posted by <span className="text-slate-700">{getDisplayName(notice.author)}</span>
                   </span>
                 </div>
               </div>
