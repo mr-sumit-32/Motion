@@ -158,9 +158,9 @@ export default function Profile() {
                 </div>
                 <input 
                   required
-                  type="number" 
+                  type="tel" 
                   inputMode="numeric"
-                  placeholder="5550000000"
+                  placeholder="+91 xxxxx-xxxxx"
                   value={contactNo}
                   onChange={(e) => setContactNo(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-sm"
