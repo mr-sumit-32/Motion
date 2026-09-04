@@ -31,7 +31,8 @@ export default function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
         {!isSidebarOpen && (
           <button 
             onClick={toggleSidebar}
-            className="p-1.5 hover:bg-muted rounded-md text-muted-foreground transition-colors"
+            aria-label="Open navigation"
+            className="min-h-11 min-w-11 p-2.5 hover:bg-muted rounded-md text-muted-foreground transition-colors"
           >
             <Menu size={20} />
           </button>
@@ -49,7 +50,7 @@ export default function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-3">
-        <button className="p-2 hover:bg-muted rounded-full text-muted-foreground transition-colors relative">
+        <button aria-label="Notifications" className="min-h-11 min-w-11 p-2.5 hover:bg-muted rounded-full text-muted-foreground transition-colors relative">
           <Bell size={18} />
           {/* Notification indicator dot */}
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background"></span>
@@ -59,7 +60,8 @@ export default function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
         <div className="relative">
           <button 
             onClick={() => setIsProfileOpen(!isProfileOpen)}
-            className="h-8 w-8 rounded-full bg-secondary border border-border flex items-center justify-center hover:ring-2 ring-primary/20 transition-all font-medium text-sm text-secondary-foreground"
+            aria-label="Open profile menu"
+            className="h-10 w-10 sm:h-8 sm:w-8 rounded-full bg-secondary border border-border flex items-center justify-center hover:ring-2 ring-primary/20 transition-all font-medium text-sm text-secondary-foreground"
           >
             {userInitial}
           </button>

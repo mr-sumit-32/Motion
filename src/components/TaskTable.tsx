@@ -108,7 +108,7 @@ export default function TaskTable() {
   return (
     <div className="flex flex-col h-full min-w-0 animate-in fade-in duration-500">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
-        <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
+        <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">
           {location.pathname === '/private-tasks' ? 'My Private Tasks' : 
            location.pathname === '/by-status' ? 'My Tasks By Status' : 
            location.pathname === '/tasks' ? 'My Tasks' : 
@@ -132,8 +132,8 @@ export default function TaskTable() {
         </div>
       </div>
 
-      <div className="overflow-x-auto bg-white border border-slate-200 rounded-xl shadow-sm flex-1 min-w-0">
-        <table className="w-full border-collapse text-left text-[13px] whitespace-nowrap">
+      <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain bg-white border border-slate-200 rounded-xl shadow-sm flex-1">
+        <table className="min-w-[1180px] w-full border-collapse text-left text-[13px] whitespace-nowrap">
           <thead className="bg-indigo-50/70 text-indigo-950 sticky top-0 z-10 backdrop-blur-sm">
             <tr className="border-b border-indigo-100">
               <th className="p-3 font-semibold">Department</th>

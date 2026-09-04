@@ -83,7 +83,7 @@ export default function DocumentHub() {
           </div>
         ) : (
           <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-x-auto">
-            <table className="w-full border-collapse text-left text-[13px] whitespace-nowrap">
+            <table className="min-w-[680px] w-full border-collapse text-left text-[13px] whitespace-nowrap">
               <thead className="bg-indigo-50/70 text-indigo-950">
                 <tr className="border-b border-indigo-100">
                   <th className="p-4 font-bold tracking-wide">Document Name</th>
