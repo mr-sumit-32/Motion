@@ -111,7 +111,7 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
 
   return (
     <aside className={cn(
-      "fixed inset-y-0 left-0 z-50 w-[min(20rem,85vw)] bg-slate-50 border-r border-slate-200 h-screen flex flex-col flex-shrink-0 select-none transition-transform duration-300 lg:relative lg:w-64 lg:translate-x-0",
+      "fixed inset-y-0 left-0 z-[60] w-[min(20rem,85vw)] bg-white border-r border-slate-200 shadow-xl h-screen flex flex-col flex-shrink-0 select-none transition-transform duration-300 lg:relative lg:z-auto lg:w-64 lg:translate-x-0 lg:shadow-none",
       isOpen ? "translate-x-0 lg:w-64" : "-translate-x-full lg:w-20",
       className
     )}>
@@ -142,7 +142,8 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
         {onClose && (
           <button 
             onClick={onClose}
-            className="lg:hidden p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors"
+            aria-label="Close navigation"
+            className="lg:hidden min-h-10 min-w-10 p-2 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors flex items-center justify-center"
           >
             <X size={18} />
           </button>
