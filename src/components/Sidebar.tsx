@@ -111,7 +111,7 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
 
   return (
     <aside className={cn(
-      "fixed inset-y-0 left-0 z-[60] w-[min(20rem,85vw)] bg-white border-r border-slate-200 shadow-xl h-screen flex flex-col flex-shrink-0 select-none transition-transform duration-300 lg:relative lg:z-auto lg:w-64 lg:translate-x-0 lg:shadow-none",
+      "fixed inset-y-0 left-0 z-[60] w-[min(20rem,85vw)] !bg-white border-r border-slate-200 shadow-xl h-screen flex flex-col flex-shrink-0 select-none transition-transform duration-300 lg:relative lg:z-auto lg:w-64 lg:translate-x-0 lg:shadow-none",
       isOpen ? "translate-x-0 lg:w-64" : "-translate-x-full lg:w-20",
       className
     )}>
