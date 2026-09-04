@@ -78,7 +78,7 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
   };
 
   const navLinkClasses = ({ isActive }: { isActive: boolean }) => cn(
-    "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200 group relative",
+    "flex items-center gap-3 px-3 py-2.5 min-h-11 rounded-lg text-sm transition-all duration-200 group relative",
     isActive 
       ? "bg-indigo-50 text-indigo-700 font-semibold before:absolute before:left-0 before:top-1 before:bottom-1 before:w-1 before:bg-indigo-600 before:rounded-r-md" 
       : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
@@ -111,7 +111,7 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
 
   return (
     <aside className={cn(
-      "fixed inset-y-0 left-0 z-50 w-[min(18rem,88vw)] bg-slate-50/50 border-r border-slate-200 h-screen flex flex-col flex-shrink-0 select-none transition-transform transition-[width] duration-300 lg:relative lg:w-64 lg:translate-x-0",
+      "fixed inset-y-0 left-0 z-50 w-[min(20rem,85vw)] bg-slate-50 border-r border-slate-200 h-screen flex flex-col flex-shrink-0 select-none transition-transform duration-300 lg:relative lg:w-64 lg:translate-x-0",
       isOpen ? "translate-x-0 lg:w-64" : "-translate-x-full lg:w-20",
       className
     )}>
@@ -131,7 +131,7 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
           <button
             onClick={onToggle}
             className={cn(
-              "p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors",
+              "p-2 rounded-md text-slate-500 hover:text-slate-800 hover:bg-slate-200 transition-colors min-w-10 min-h-10 flex items-center justify-center",
               !isOpen && "ml-0"
             )}
           >
@@ -150,7 +150,7 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
       </div>
 
       {isOpen ? (
-      <div className="flex-1 overflow-y-auto pb-6 custom-scrollbar">
+      <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden pb-6 custom-scrollbar">
         
         <div className="px-5 mt-4 mb-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
           Company
@@ -238,7 +238,7 @@ export default function Sidebar({ onClose, onToggle, isOpen = true, className }:
 
         <div className="px-3 space-y-1">
           <NavLink to="/private-tasks" onClick={handleNavClick} className={({ isActive }) => cn(
-            "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200 relative",
+            "flex items-center gap-3 px-3 py-2.5 min-h-11 rounded-lg text-sm transition-all duration-200 relative",
             isActive 
               ? "bg-slate-800 text-white font-semibold shadow-md" 
               : "bg-slate-100 text-slate-700 hover:bg-slate-200"
