@@ -16,6 +16,12 @@ export default function HomeDashboard() {
   // Extract a display name from the user's email
   const displayName = getDisplayName(user?.email) || 'Team Member';
   const capitalizedName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+  const currentHour = new Date().getHours();
+  const greeting = currentHour < 12
+    ? 'Good morning'
+    : currentHour < 18
+      ? 'Good afternoon'
+      : 'Good evening';
 
   // Filter tasks to show only pending ones assigned to the logged-in user
   const myPendingTasks = tasks.filter((t) => {
@@ -62,7 +68,7 @@ export default function HomeDashboard() {
       {/* Header Section */}
       <div className="mb-10">
         <h1 className="text-3xl font-bold tracking-tight mb-2">
-          Good morning, {capitalizedName}.
+          {greeting}, {capitalizedName}.
         </h1>
         <p className="text-muted-foreground">
           Here is an overview of your workspace today. You have <span className="font-medium text-foreground">{myPendingTasks.length} pending tasks</span>.
